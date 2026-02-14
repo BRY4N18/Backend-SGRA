@@ -1,0 +1,12 @@
+package com.CLMTZ.Backend.service.security;
+
+import java.util.List;
+import com.CLMTZ.Backend.dto.security.SessionTypesDTO;
+
+public interface ISessionTypesService {
+    List<SessionTypesDTO> findAll();
+    SessionTypesDTO findById(Integer id);
+    SessionTypesDTO save(SessionTypesDTO dto);
+    SessionTypesDTO update(Integer id, SessionTypesDTO dto);
+    void deleteById(Integer id);
+}
