@@ -6,7 +6,6 @@ import com.CLMTZ.Backend.model.academic.Coordination;
 import com.CLMTZ.Backend.model.academic.Students;
 import com.CLMTZ.Backend.model.academic.Teaching;
 import com.CLMTZ.Backend.model.security.Access;
-import com.CLMTZ.Backend.model.security.UserManagement;
 import com.CLMTZ.Backend.model.security.UserUserManagement;
 import com.CLMTZ.Backend.model.security.UsersRoles;
 
