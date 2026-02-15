@@ -2,8 +2,6 @@ package com.CLMTZ.Backend.model.security;
 
 import java.util.List;
 
-import com.CLMTZ.Backend.model.general.User;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,19 +18,18 @@ public class UserManagement {
     @EqualsAndHashCode.Include
     private Integer userGId;
 
-    @Column(name = "usuario",length = 100, nullable = false)
+    @Column(name = "usuario",length = 100, nullable = false, unique = true)
     private String user;
 
     @Column(name = "contrasena", nullable = false, columnDefinition = "TEXT")
     private String password;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idusuario", foreignKey = @ForeignKey(name = "fk_gestionusuario_usuario"))
-    private User userId;
 
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")
     private Boolean state = true;
 
     @OneToMany(mappedBy = "userManagement", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserRoleManagement> userRoleManagements;
+
+    @OneToOne(mappedBy = "userManagement", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private UserUserManagement userUserManagement;
 }

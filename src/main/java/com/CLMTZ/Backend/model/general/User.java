@@ -7,6 +7,7 @@ import com.CLMTZ.Backend.model.academic.Students;
 import com.CLMTZ.Backend.model.academic.Teaching;
 import com.CLMTZ.Backend.model.security.Access;
 import com.CLMTZ.Backend.model.security.UserManagement;
+import com.CLMTZ.Backend.model.security.UserUserManagement;
 import com.CLMTZ.Backend.model.security.UsersRoles;
 
 import jakarta.persistence.CascadeType;
@@ -66,8 +67,8 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Access access;
 
-    @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private UserManagement userManagement;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private UserUserManagement userUserManagement;
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UsersRoles> usersRoles;

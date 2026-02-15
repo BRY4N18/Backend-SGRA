@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserManagementDTO {
-    private Integer userGId;
-    private String user;
-    private String password;
+public class UserUserManagementDTO {
+    private Integer userUserGId;
+    private Integer userId;
+    private Integer userManagementId;
     private Boolean state;
 }
