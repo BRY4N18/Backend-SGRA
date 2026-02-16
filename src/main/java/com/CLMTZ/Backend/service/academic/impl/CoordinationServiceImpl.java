@@ -1,17 +1,22 @@
 package com.CLMTZ.Backend.service.academic.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.CLMTZ.Backend.dto.academic.CoordinationDTO;
+import com.CLMTZ.Backend.dto.academic.StudentLoadDTO;
 import com.CLMTZ.Backend.model.academic.Coordination;
 import com.CLMTZ.Backend.repository.academic.ICareerRepository;
 import com.CLMTZ.Backend.repository.academic.ICoordinationRepository;
+import com.CLMTZ.Backend.repository.academic.IDataLoadRepository;
 import com.CLMTZ.Backend.repository.general.IUserRepository;
 import com.CLMTZ.Backend.service.academic.ICoordinationService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,6 +26,7 @@ public class CoordinationServiceImpl implements ICoordinationService {
     private final ICoordinationRepository repository;
     private final IUserRepository userRepository;
     private final ICareerRepository careerRepository;
+    private final IDataLoadRepository dataLoadRepository;
 
     @Override
     public List<CoordinationDTO> findAll() {
@@ -50,6 +56,49 @@ public class CoordinationServiceImpl implements ICoordinationService {
     @Override
     public void deleteById(Integer id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public List<String> uploadStudents(List<StudentLoadDTO> dtos) {
+        List<String> resultados = new ArrayList<>();
+
+        for (StudentLoadDTO fila : dtos) {
+            try {
+                // 1. Obtener IDs desde SQL
+                Map<String, Object> ids = dataLoadRepository.obtenerIdsPorTexto(
+                    fila.getCarreraTexto(), fila.getModalidadTexto(), fila.getPeriodoTexto()
+                );
+
+                if (ids == null || ids.get("id_carrera_encontrado") == null) {
+                    resultados.add("Cédula " + fila.getCedula() + ": ERROR (Carrera o Periodo inválido)");
+                    continue;
+                }
+                
+                // Conversión de tipos segura
+                Integer idCarrera = (Integer) ids.get("id_carrera_encontrado");
+                Integer idPeriodo = (Integer) ids.get("id_periodo_encontrado");
+                Integer idGenero = "M".equalsIgnoreCase(fila.getGenero()) ? 1 : 2; 
+
+                // 2. Validación SQL (Correo)
+                if (!dataLoadRepository.validarCorreoDisponible(fila.getCorreo(), fila.getCedula())) {
+                    resultados.add("Cédula " + fila.getCedula() + ": ERROR (Correo duplicado)");
+                    continue;
+                }
+
+                // 3. Ejecutar SP
+                dataLoadRepository.cargarEstudiante(
+                    fila.getCedula(), fila.getNombres(), fila.getApellidos(),
+                    fila.getCorreo(), fila.getDireccion(), fila.getTelefono(),
+                    idCarrera, idGenero, idPeriodo
+                );
+                resultados.add("Cédula " + fila.getCedula() + ": OK");
+
+            } catch (Exception e) {
+                resultados.add("Cédula " + fila.getCedula() + ": ERROR INTERNO (" + e.getMessage() + ")");
+            }
+        }
+        return resultados;
     }
 
     private CoordinationDTO toDTO(Coordination entity) {

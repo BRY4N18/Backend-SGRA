@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.CLMTZ.Backend.dto.academic.CoordinationDTO;
+import com.CLMTZ.Backend.dto.academic.StudentLoadDTO;
 import com.CLMTZ.Backend.service.academic.ICoordinationService;
 import lombok.RequiredArgsConstructor;
 
@@ -29,4 +30,9 @@ public class CoordinationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) { service.deleteById(id); return ResponseEntity.noContent().build(); }
+
+    @PostMapping("/upload-students")
+    public ResponseEntity<List<String>> uploadStudents(@RequestBody List<StudentLoadDTO> dtos) {
+        return ResponseEntity.ok(service.uploadStudents(dtos));
+    }
 }
