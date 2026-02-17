@@ -1,6 +1,8 @@
 package com.CLMTZ.Backend.service.security;
 
 import java.util.List;
+
+import com.CLMTZ.Backend.dto.security.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.UserManagementDTO;
 
 public interface IUserManagementService {
@@ -9,4 +11,5 @@ public interface IUserManagementService {
     UserManagementDTO save(UserManagementDTO dto);
     UserManagementDTO update(Integer id, UserManagementDTO dto);
     void deleteById(Integer id);
+    SpResponseDTO createUser(UserManagementDTO userRequest);
 }
