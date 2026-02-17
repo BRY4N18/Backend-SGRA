@@ -63,6 +63,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
 
             responseDTO = new SpResponseDTO(message, success);
         } catch (Exception e) {
+            e.printStackTrace();
             responseDTO = new SpResponseDTO("Error al ejecutar el SP: " + e.getMessage(), false);  
         }
         return responseDTO;
