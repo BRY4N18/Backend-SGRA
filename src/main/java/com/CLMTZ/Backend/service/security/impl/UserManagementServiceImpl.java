@@ -60,18 +60,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
     public SpResponseDTO createUser(UserManagementDTO userRequest){
 
         SpResponseDTO responseDTO;
-        // try {
-        //     Map<String, Object> responseSp = userRepository.createUserSp(userRequest.getUser(), userRequest.getPassword());
-
-        //     String message = (String) responseSp.get("p_mensaje");
-        //     Boolean success = (Boolean) responseSp.get("p_exito");
-
-        //     responseDTO = new SpResponseDTO(message, success);
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        //     responseDTO = new SpResponseDTO("Error al ejecutar el SP: " + e.getMessage(), false);  
-        // }
-
+        
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargusuario");
 
         query.registerStoredProcedureParameter("p_gusuario", String.class, ParameterMode.IN);
@@ -80,7 +69,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
         query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
 
         query.setParameter("p_gusuario", userRequest.getUser());
-        query.setParameter("p_gcontrana", userRequest.getPassword());
+        query.setParameter("p_gcontrasena", userRequest.getPassword());
 
         query.execute();
 
