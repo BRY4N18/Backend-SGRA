@@ -3,6 +3,8 @@ package com.CLMTZ.Backend.service.security.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.jdbc.object.StoredProcedure;
 import org.springframework.stereotype.Service;
 
 import com.CLMTZ.Backend.dto.security.SpResponseDTO;
@@ -11,6 +13,9 @@ import com.CLMTZ.Backend.model.security.UserManagement;
 import com.CLMTZ.Backend.repository.security.IUserManagementRepository;
 import com.CLMTZ.Backend.service.security.IUserManagementService;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureQuery;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class UserManagementServiceImpl implements IUserManagementService {
 
     private final IUserManagementRepository userRepository;
+    private final EntityManager entityManager;
 
     @Override
     public List<UserManagementDTO> findAll() { return userRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList()); }
@@ -54,18 +60,35 @@ public class UserManagementServiceImpl implements IUserManagementService {
     public SpResponseDTO createUser(UserManagementDTO userRequest){
 
         SpResponseDTO responseDTO;
+        // try {
+        //     Map<String, Object> responseSp = userRepository.createUserSp(userRequest.getUser(), userRequest.getPassword());
 
-        try {
-            Map<String, Object> responseSp = userRepository.createUserSp(userRequest.getUser(), userRequest.getPassword());
+        //     String message = (String) responseSp.get("p_mensaje");
+        //     Boolean success = (Boolean) responseSp.get("p_exito");
 
-            String message = (String) responseSp.get("p_mensaje");
-            Boolean success = (Boolean) responseSp.get("p_exito");
+        //     responseDTO = new SpResponseDTO(message, success);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        //     responseDTO = new SpResponseDTO("Error al ejecutar el SP: " + e.getMessage(), false);  
+        // }
 
-            responseDTO = new SpResponseDTO(message, success);
-        } catch (Exception e) {
-            e.printStackTrace();
-            responseDTO = new SpResponseDTO("Error al ejecutar el SP: " + e.getMessage(), false);  
-        }
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargusuario");
+
+        query.registerStoredProcedureParameter("p_gusuario", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_gcontrasena", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_gusuario", userRequest.getUser());
+        query.setParameter("p_gcontrana", userRequest.getPassword());
+
+        query.execute();
+
+        String message = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
+
+        responseDTO = new SpResponseDTO(message,success);
+
         return responseDTO;
     }
 }
