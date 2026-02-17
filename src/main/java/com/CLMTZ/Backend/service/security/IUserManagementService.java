@@ -11,5 +11,6 @@ public interface IUserManagementService {
     UserManagementDTO save(UserManagementDTO dto);
     UserManagementDTO update(Integer id, UserManagementDTO dto);
     void deleteById(Integer id);
-    SpResponseDTO createUser(UserManagementDTO userRequest);
+    SpResponseDTO createGUser(UserManagementDTO userRequest);
+    SpResponseDTO updateGUser(UserManagementDTO userRequest);
 }

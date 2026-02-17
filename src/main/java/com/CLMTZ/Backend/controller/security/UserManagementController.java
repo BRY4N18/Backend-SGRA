@@ -37,9 +37,16 @@ public class UserManagementController {
     @PostMapping("/create-user")
     public ResponseEntity<SpResponseDTO> createUser(@RequestBody UserManagementDTO requestUser) {    
         
-        SpResponseDTO request = userManagementser.createUser(requestUser);
+        SpResponseDTO request = userManagementser.createGUser(requestUser);
 
         return ResponseEntity.ok(request);
     }
     
+    @PutMapping("/update-user")
+    public ResponseEntity<SpResponseDTO> updateGUser(@RequestBody UserManagementDTO requestUser) {    
+        
+        SpResponseDTO request = userManagementser.updateGUser(requestUser);
+
+        return ResponseEntity.ok(request);
+    }
 }

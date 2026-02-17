@@ -56,7 +56,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
 
     @Override
     @Transactional
-    public SpResponseDTO createUser(UserManagementDTO userRequest){
+    public SpResponseDTO createGUser(UserManagementDTO userRequest){
 
         SpResponseDTO responseDTO;
         
@@ -67,6 +67,35 @@ public class UserManagementServiceImpl implements IUserManagementService {
         query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
         query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
 
+        query.setParameter("p_gusuario", userRequest.getUser());
+        query.setParameter("p_gcontrasena", userRequest.getPassword());
+
+        query.execute();
+
+        String message = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
+
+        responseDTO = new SpResponseDTO(message,success);
+
+        return responseDTO;
+    }
+
+    @Override
+    @Transactional
+    public SpResponseDTO updateGUser(UserManagementDTO userRequest){
+
+        SpResponseDTO responseDTO;
+
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_up_gusuario");
+
+        query.registerStoredProcedureParameter("p_idgusuario", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_gusuario", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_gcontrasena", String.class, ParameterMode.IN);
+        
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_idgusuario", userRequest.getUserGId());
         query.setParameter("p_gusuario", userRequest.getUser());
         query.setParameter("p_gcontrasena", userRequest.getPassword());
 
