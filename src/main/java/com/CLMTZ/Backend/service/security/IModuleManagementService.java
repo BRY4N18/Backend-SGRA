@@ -2,6 +2,7 @@ package com.CLMTZ.Backend.service.security;
 
 import java.util.List;
 import com.CLMTZ.Backend.dto.security.ModuleManagementDTO;
+import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
 
 public interface IModuleManagementService {
     List<ModuleManagementDTO> findAll();
@@ -9,4 +10,5 @@ public interface IModuleManagementService {
     ModuleManagementDTO save(ModuleManagementDTO dto);
     ModuleManagementDTO update(Integer id, ModuleManagementDTO dto);
     void deleteById(Integer id);
+    List<ModuleListManagementResponseDTO> listModuleManagerment(String role); 
 }

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.CLMTZ.Backend.dto.security.RoleManagementDTO;
 import com.CLMTZ.Backend.dto.security.SpResponseDTO;
-import com.CLMTZ.Backend.dto.security.Response.RoleListResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
 import com.CLMTZ.Backend.service.security.IRoleManagementService;
 import lombok.RequiredArgsConstructor;
 
@@ -47,8 +47,8 @@ public class RoleManagementController {
     }
     
     @GetMapping("/list-roles")
-    public ResponseEntity<List<RoleListResponseDTO>> listRoles(@RequestParam(required = false) String filter, @RequestParam(defaultValue = "true") Boolean state){
-        List<RoleListResponseDTO> list = roleManagementSer.listRoles(filter, state);
+    public ResponseEntity<List<RoleListManagementResponseDTO>> listRoles(@RequestParam(required = false) String filter, @RequestParam(defaultValue = "true") Boolean state){
+        List<RoleListManagementResponseDTO> list = roleManagementSer.listRoles(filter, state);
         return ResponseEntity.ok(list);
     }
 }
