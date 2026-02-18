@@ -40,28 +40,38 @@ public class CoordinationController {
     public ResponseEntity<?> uploadStudents(@RequestParam("file") MultipartFile file) {
         String message = "";
 
-        // Debug: imprimir info del archivo
-        System.out.println("=== UPLOAD STUDENTS ===");
-        System.out.println("Archivo recibido: " + file.getOriginalFilename());
-        System.out.println("Content-Type: " + file.getContentType());
-        System.out.println("Tamaño: " + file.getSize() + " bytes");
+        // LOGS DETALLADOS
+        System.out.println("\n==============================");
+        System.out.println("[UPLOAD-STUDENTS] Endpoint llamado");
+        System.out.println("Archivo recibido: " + (file != null ? file.getOriginalFilename() : "null"));
+        System.out.println("Content-Type: " + (file != null ? file.getContentType() : "null"));
+        System.out.println("Tamaño: " + (file != null ? file.getSize() : "null") + " bytes");
+        System.out.println("==============================\n");
 
         if (ExcelHelper.hasExcelFormat(file)) {
             try {
+                System.out.println("[UPLOAD-STUDENTS] Validación de formato OK");
                 // 1. Convertimos Excel -> Lista de DTOs
                 List<StudentLoadDTO> dtos = ExcelHelper.excelToStudents(file.getInputStream());
-                System.out.println("Filas leídas del Excel: " + dtos.size());
-                
+                System.out.println("[UPLOAD-STUDENTS] Filas leídas del Excel: " + dtos.size());
+                if (dtos.isEmpty()) {
+                    System.out.println("[UPLOAD-STUDENTS] El archivo Excel no contiene datos válidos.");
+                } else {
+                    System.out.println("[UPLOAD-STUDENTS] Primer estudiante: " + dtos.get(0));
+                }
                 // 2. Enviamos la lista al servicio (tu lógica RF26/RF27)
                 List<String> reporte = service.uploadStudents(dtos);
-                
+                System.out.println("[UPLOAD-STUDENTS] Reporte generado: " + reporte);
                 return ResponseEntity.ok(reporte);
 
             } catch (Exception e) {
+                System.out.println("[UPLOAD-STUDENTS] ERROR al procesar el archivo:");
                 e.printStackTrace(); // Imprime el stack trace completo en consola
                 message = "No se pudo procesar el archivo: " + file.getOriginalFilename() + ". Error: " + e.getMessage();
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
             }
+        } else {
+            System.out.println("[UPLOAD-STUDENTS] Formato de archivo inválido");
         }
 
         message = "Por favor, sube un archivo Excel válido (.xlsx). Archivo recibido: " + file.getOriginalFilename() + ", tipo: " + file.getContentType();
