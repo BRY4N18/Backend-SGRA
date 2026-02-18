@@ -4,7 +4,7 @@ import com.CLMTZ.Backend.dto.security.ServerCredentialDTO;
 import com.CLMTZ.Backend.repository.security.IServerCredentialRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
+import jakarta.persistence.StoredProcedureQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -23,11 +23,13 @@ public class ServerCredentialRepositoryImpl implements IServerCredentialReposito
     @Override
     public Optional<ServerCredentialDTO> getServerCredential(Integer userId, String masterKey) {
         try {
-            String sql = "SELECT db_usuario, db_password FROM seguridad.fn_get_server_credential(?1, ?2)";
-
-            Query query = entityManager.createNativeQuery(sql);
+            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.fn_get_server_credential");
+            query.registerStoredProcedureParameter(1, Integer.class, jakarta.persistence.ParameterMode.IN);
+            query.registerStoredProcedureParameter(2, String.class, jakarta.persistence.ParameterMode.IN);
             query.setParameter(1, userId);
             query.setParameter(2, masterKey);
+
+            query.execute();
 
             @SuppressWarnings("unchecked")
             List<Object[]> results = query.getResultList();
@@ -37,7 +39,7 @@ public class ServerCredentialRepositoryImpl implements IServerCredentialReposito
                 return Optional.empty();
             }
 
-            Object[] row = results.get(0);
+            Object[] row = results.getFirst();
             ServerCredentialDTO credential = new ServerCredentialDTO();
             credential.setDbUser((String) row[0]);
             credential.setDbPassword((String) row[1]);
