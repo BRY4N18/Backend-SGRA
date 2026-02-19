@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.dto.security.RoleManagementDTO;
 import com.CLMTZ.Backend.dto.security.SpResponseDTO;
-import com.CLMTZ.Backend.dto.security.Response.RoleListResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
 import com.CLMTZ.Backend.model.security.RoleManagement;
 import com.CLMTZ.Backend.repository.security.IRoleManagementRepository;
 import com.CLMTZ.Backend.service.security.IRoleManagementService;
@@ -48,6 +48,7 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
 
     @Override
     public void deleteById(Integer id) { roleManagementRepo.deleteById(id); }
+    
 
     private RoleManagementDTO toDTO(RoleManagement e) {
         RoleManagementDTO d = new RoleManagementDTO();
@@ -58,7 +59,21 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RoleListResponseDTO> listRoles(String filter, Boolean state){
+    public List<RoleManagementDTO> listRoleNames(){
+
+        List<RoleManagement> rolesEntity = roleManagementRepo.findByStateTrue();
+
+        return rolesEntity.stream().map(rolEntity -> {
+            RoleManagementDTO dto = new RoleManagementDTO();           
+            dto.setRoleGId(rolEntity.getRoleGId()); 
+            dto.setRoleG(rolEntity.getRoleG());           
+            return dto;
+        }).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RoleListManagementResponseDTO> listRoles(String filter, Boolean state){
         String textFilter = (filter == null) ? "" : filter;
         Boolean stateFilter = (state == null) ? true : state;
 

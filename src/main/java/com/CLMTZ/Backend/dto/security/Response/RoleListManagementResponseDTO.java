@@ -2,7 +2,7 @@ package com.CLMTZ.Backend.dto.security.Response;
 
 import java.time.LocalDate;
 
-public interface RoleListResponseDTO {
+public interface RoleListManagementResponseDTO {
     Integer getIdg();
     String getNombreg();
     String getDescripciong();

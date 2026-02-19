@@ -30,7 +30,7 @@ public class AcademicArea {
     @Column(name = "nombre",length = 200,nullable = false)
     private String nameArea;
 
-    @Column(name = "abreviatura",length = 10,nullable = false, columnDefinition="char(10)")
+    @Column(name = "abreviatura",length = 10,nullable = false, columnDefinition="character(10)")
     private String abbreviation;
 
     @Column(name = "ubicacion", length = 150,nullable = false)
