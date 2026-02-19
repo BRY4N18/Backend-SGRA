@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WorkAreaTypesDTO {
     private Integer workAreaTypeId;
-    private Integer workAreaType;
+    private String workAreaType;
     private Boolean state;
 }

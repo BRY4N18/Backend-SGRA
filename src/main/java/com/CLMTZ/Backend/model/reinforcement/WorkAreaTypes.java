@@ -21,8 +21,8 @@ public class WorkAreaTypes {
     @EqualsAndHashCode.Include
     private Integer workAreaTypeId;
 
-    @Column(name = "tipoareatrabajo", nullable = false)
-    private Integer workAreaType;
+    @Column(name = "tipoareatrabajo", nullable = false, columnDefinition = "TEXT")
+    private String workAreaType;
 
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")
     private Boolean state = true;

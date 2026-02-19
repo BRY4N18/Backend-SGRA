@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.CLMTZ.Backend.dto.security.ModuleManagementDTO;
+import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
 import com.CLMTZ.Backend.model.security.ModuleManagement;
@@ -51,5 +52,10 @@ public class ModuleManagementServiceImpl implements IModuleManagementService {
     @Override
     public List<MasterTableListManagementResponseDTO> listMasterTables(){
         return moduleManagementRepo.listMasterTables();
+    }
+
+    @Override
+    public List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTables){
+        return moduleManagementRepo.listDataMasterTables(schemaTables);
     }
 }

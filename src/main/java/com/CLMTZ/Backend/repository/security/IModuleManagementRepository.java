@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
 import com.CLMTZ.Backend.model.security.ModuleManagement;
@@ -16,4 +17,7 @@ public interface IModuleManagementRepository extends JpaRepository<ModuleManagem
 
     @Query(value = "Select * from seguridad.fn_sl_tablas_maestras()", nativeQuery = true)
     List<MasterTableListManagementResponseDTO> listMasterTables();
+
+    @Query(value = "Select * from seguridad.fn_sl_datos_tablas_maestras(:p_esquematabla)", nativeQuery = true)
+    List<MasterDataListManagementResponseDTO> listDataMasterTables(@Param("p_esquematabla") String schemaTable);
 }

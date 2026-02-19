@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.CLMTZ.Backend.dto.security.ModuleManagementDTO;
+import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
 import com.CLMTZ.Backend.service.security.IModuleManagementService;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class ModuleManagementController {
 
     private final IModuleManagementService moduleManagementSer;
-
+    
     @GetMapping
     public ResponseEntity<List<ModuleManagementDTO>> findAll() { return ResponseEntity.ok(moduleManagementSer.findAll()); }
 
@@ -41,8 +42,14 @@ public class ModuleManagementController {
     }
 
     @GetMapping("/list-master-tables")
-    public ResponseEntity<List<MasterTableListManagementResponseDTO>> getMethodName() {
+    public ResponseEntity<List<MasterTableListManagementResponseDTO>> listGMasterTables() {
         List<MasterTableListManagementResponseDTO> listTables = moduleManagementSer.listMasterTables();
         return ResponseEntity.ok(listTables);
+    }
+
+    @GetMapping("/list-data-master-table")
+    public ResponseEntity<List<MasterDataListManagementResponseDTO>> listGDataMasterTables(@RequestParam String schemaTable){
+        List<MasterDataListManagementResponseDTO> listaData = moduleManagementSer.listDataMasterTables(schemaTable);
+        return ResponseEntity.ok(listaData);
     }
 }
