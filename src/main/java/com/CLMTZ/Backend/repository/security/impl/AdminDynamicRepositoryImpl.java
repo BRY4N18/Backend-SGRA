@@ -7,6 +7,13 @@ import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
 import com.CLMTZ.Backend.repository.security.IAdminDynamicRepository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
@@ -18,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@RequiredArgsConstructor
 public class AdminDynamicRepositoryImpl implements IAdminDynamicRepository {
 
-    private final DynamicDataSourceService dynamicDataSourceService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    public AdminDynamicRepositoryImpl(DynamicDataSourceService dynamicDataSourceService) {
-        this.dynamicDataSourceService = dynamicDataSourceService;
-    }
+    private final DynamicDataSourceService dynamicDataSourceService;
 
     private NamedParameterJdbcTemplate getJdbcTemplate() {
         return dynamicDataSourceService.getJdbcTemplate();
@@ -60,10 +67,22 @@ public class AdminDynamicRepositoryImpl implements IAdminDynamicRepository {
 
     @Override
     public SpResponseDTO createGUser(String user, String password) {
-        return executeStoredProcedure("seguridad", "sp_in_creargusuario",
-                new MapSqlParameterSource()
-                        .addValue("p_gusuario", user)
-                        .addValue("p_gcontrasena", password));
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargusuario");
+
+        query.registerStoredProcedureParameter("p_gusuario", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_gcontrasena", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_gusuario", user);
+        query.setParameter("p_gcontrasena", password);
+
+        query.execute();
+
+        String message = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
+
+        return new SpResponseDTO(message, success);
     }
 
     @Override

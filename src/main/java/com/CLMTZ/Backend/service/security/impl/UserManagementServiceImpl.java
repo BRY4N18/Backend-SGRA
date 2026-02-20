@@ -67,12 +67,20 @@ public class UserManagementServiceImpl implements IUserManagementService {
     @Override
     @Transactional
     public SpResponseDTO createGUser(UserManagementDTO userRequest){
-        return adminDynamicRepo.createGUser(userRequest.getUser(), userRequest.getPassword());
+        try {
+            return adminDynamicRepo.createGUser(userRequest.getUser(), userRequest.getPassword());
+        } catch (Exception e) {
+            return new SpResponseDTO("Error al crear al usuarios: " + e.getMessage(),false);
+        }  
     }
 
     @Override
     @Transactional
     public SpResponseDTO updateGUser(UserManagementDTO userRequest){
-        return adminDynamicRepo.updateGUser(userRequest.getUserGId(), userRequest.getUser(), userRequest.getPassword());
+        try {
+            return adminDynamicRepo.updateGUser(userRequest.getUserGId(), userRequest.getUser(), userRequest.getPassword());
+            } catch (Exception e) {
+            return new SpResponseDTO("Error editar al usuarios" + e.getMessage(), false);
+        }  
     }
 }
