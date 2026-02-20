@@ -1,5 +1,7 @@
 package com.CLMTZ.Backend.dto.security;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
@@ -15,4 +17,5 @@ public class UserManagementDTO {
     private String user;
     private String password;
     private Boolean state;
+    private List<Integer> roles;
 }
