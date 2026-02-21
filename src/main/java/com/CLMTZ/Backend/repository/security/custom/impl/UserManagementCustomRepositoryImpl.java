@@ -1,5 +1,6 @@
 package com.CLMTZ.Backend.repository.security.custom.impl;
 
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.UserRoleManagementResponseDTO;
 import com.CLMTZ.Backend.repository.security.custom.IUserManagementCustomRepository;
 
 import jakarta.persistence.EntityManager;
@@ -91,5 +93,28 @@ public class UserManagementCustomRepositoryImpl implements IUserManagementCustom
         Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
 
         return new SpResponseDTO(message, success);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserRoleManagementResponseDTO DataUserById(Integer idUser){
+        String query = "Select * from seguridad.fn_sl_up_gusuariosroles(:p_iduserg)";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("p_iduserg", idUser, Types.INTEGER);
+
+        List<UserRoleManagementResponseDTO> resultados = getJdbcTemplate().query(query, params, (rs, rowNum) -> {
+            UserRoleManagementResponseDTO dto = new UserRoleManagementResponseDTO();
+            
+            dto.setIdgu(rs.getInt(1));
+            dto.setUsuariogu(rs.getString(2));
+            dto.setContrasena(rs.getString(3));
+            dto.setEstadogu(rs.getString(5));
+            dto.setRolesasignadosgu(rs.getString(4));
+            
+            return dto;
+        });
+
+        return resultados.stream().findFirst().orElse(null);
     }
 }

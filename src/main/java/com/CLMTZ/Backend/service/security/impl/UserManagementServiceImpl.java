@@ -1,6 +1,7 @@
 package com.CLMTZ.Backend.service.security.impl;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.CLMTZ.Backend.dto.security.Request.UserManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.UserRoleManagementResponseDTO;
 import com.CLMTZ.Backend.model.security.UserManagement;
 import com.CLMTZ.Backend.repository.security.IUserManagementRepository;
 import com.CLMTZ.Backend.repository.security.custom.IUserManagementCustomRepository;
@@ -95,5 +97,27 @@ public class UserManagementServiceImpl implements IUserManagementService {
         } catch (Exception e) {
             return new SpResponseDTO("Error editar al usuarios" + e.getMessage(), false);
         }  
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserRoleManagementResponseDTO DataUserById(Integer idUser) {
+        try {
+            UserRoleManagementResponseDTO userManagement = userManagementCustRepo.DataUserById(idUser);
+
+            if (userManagement.getRolesasignadosgu() != null && !userManagement.getRolesasignadosgu().isEmpty()) {
+
+                List<Integer> rolesList = Arrays.stream(userManagement.getRolesasignadosgu().split(","))
+                        .map(Integer::parseInt)
+                        .toList();
+
+                userManagement.setRoles(rolesList);
+            }
+
+            return userManagement;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener el usuario: " + e.getCause().getMessage());
+        }
     }
 }

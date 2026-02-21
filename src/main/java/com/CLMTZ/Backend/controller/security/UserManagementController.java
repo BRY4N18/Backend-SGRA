@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.CLMTZ.Backend.dto.security.Request.UserManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.UserRoleManagementResponseDTO;
 import com.CLMTZ.Backend.service.security.IUserManagementService;
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +41,12 @@ public class UserManagementController {
     public ResponseEntity<List<UserListManagementResponseDTO>> listUserG(@RequestParam(required = false) String filter,@RequestParam(required = false) LocalDate date, @RequestParam(required = false) Boolean state){
         List<UserListManagementResponseDTO> requestList =  userManagementser.listUserListManagement(filter, date, state);
         return  ResponseEntity.ok(requestList);
+    }
+
+    @GetMapping("/list-userG-update")
+    public ResponseEntity<UserRoleManagementResponseDTO> DataUserById(@RequestParam Integer idUser){
+        UserRoleManagementResponseDTO request = userManagementser.DataUserById(idUser);
+        return ResponseEntity.ok(request);
     }
 
     @PostMapping("/create-user")
