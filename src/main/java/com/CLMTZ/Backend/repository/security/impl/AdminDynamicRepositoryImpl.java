@@ -66,16 +66,18 @@ public class AdminDynamicRepositoryImpl implements IAdminDynamicRepository {
     }
 
     @Override
-    public SpResponseDTO createGUser(String user, String password) {
+    public SpResponseDTO createGUser(String user, String password, String roles) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargusuario");
 
         query.registerStoredProcedureParameter("p_gusuario", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_gcontrasena", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_roles", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
         query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
 
         query.setParameter("p_gusuario", user);
         query.setParameter("p_gcontrasena", password);
+        query.setParameter("p_roles", roles);
 
         query.execute();
 

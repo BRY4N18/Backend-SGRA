@@ -25,7 +25,7 @@ public interface IAdminDynamicRepository {
      * Crea un usuario de gestión.
      * Ejecuta: seguridad.sp_in_creargusuario
      */
-    SpResponseDTO createGUser(String user, String password);
+    SpResponseDTO createGUser(String user, String password, String roles);
 
     /**
      * Actualiza un usuario de gestión.
