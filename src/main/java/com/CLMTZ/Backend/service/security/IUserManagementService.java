@@ -13,6 +13,7 @@ public interface IUserManagementService {
     UserManagementRequestDTO save(UserManagementRequestDTO dto);
     UserManagementRequestDTO update(Integer id, UserManagementRequestDTO dto);
     void deleteById(Integer id);
+    
     SpResponseDTO createUserManagement(UserManagementRequestDTO userRequest);
     SpResponseDTO updateUserManagement(UserManagementRequestDTO userRequest);
     List<UserListManagementResponseDTO> listUserListManagement(String filterUser, LocalDate date, Boolean state);

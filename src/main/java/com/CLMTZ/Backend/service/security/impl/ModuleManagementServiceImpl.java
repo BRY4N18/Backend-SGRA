@@ -3,22 +3,27 @@ package com.CLMTZ.Backend.service.security.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.dto.security.Request.ModuleManagementRequestDTO;
+import com.CLMTZ.Backend.dto.security.Request.UpdateRolePermissionsRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.model.security.ModuleManagement;
 import com.CLMTZ.Backend.repository.security.IModuleManagementRepository;
 import com.CLMTZ.Backend.repository.security.custom.IModuleCustomManagementRepository;
 import com.CLMTZ.Backend.service.security.IModuleManagementService;
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
 public class ModuleManagementServiceImpl implements IModuleManagementService {
 
     private final IModuleManagementRepository moduleManagementRepo;
+    private final ObjectMapper objectMapper;
     private final IModuleCustomManagementRepository moduleManagementCustomRepo;
 
     @Override
@@ -60,5 +65,17 @@ public class ModuleManagementServiceImpl implements IModuleManagementService {
     @Override
     public List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTables){
         return moduleManagementCustomRepo.listDataMasterTables(schemaTables);
+    }
+
+    @Override
+    public SpResponseDTO updateRolePermissions(UpdateRolePermissionsRequestDTO updateRolesPermissionsRequest){
+        try {
+            String jsonPermisos = objectMapper.writeValueAsString(updateRolesPermissionsRequest);
+
+            return moduleManagementCustomRepo.updateRolePermissions(jsonPermisos);
+
+        } catch (Exception e) {
+            return new SpResponseDTO("Error al guardar los permisos: " + e.getMessage(), false);
+        }
     }
 }

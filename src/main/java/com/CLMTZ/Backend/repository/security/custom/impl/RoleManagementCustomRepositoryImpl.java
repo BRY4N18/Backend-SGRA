@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
@@ -32,6 +33,7 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RoleListManagementResponseDTO> listRolesManagement(String filter,Boolean state){
         String query = "SELECT * FROM seguridad.fn_sl_groles(:p_filtro_texto, :p_estado)";
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -42,6 +44,7 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
     }
 
     @Override
+    @Transactional
     public SpResponseDTO createRoleManagement(String role, String description){
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargrol");
 
@@ -63,6 +66,7 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
     }
 
     @Override
+    @Transactional
     public SpResponseDTO updateRoleManagement(Integer roleId, String role, String description){
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_up_grol");
 

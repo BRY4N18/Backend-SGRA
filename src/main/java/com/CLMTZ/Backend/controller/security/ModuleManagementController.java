@@ -6,9 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.CLMTZ.Backend.dto.security.Request.ModuleManagementRequestDTO;
+import com.CLMTZ.Backend.dto.security.Request.UpdateRolePermissionsRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.service.security.IModuleManagementService;
 import lombok.RequiredArgsConstructor;
 
@@ -51,5 +53,11 @@ public class ModuleManagementController {
     public ResponseEntity<List<MasterDataListManagementResponseDTO>> listGDataMasterTables(@RequestParam String schemaTable){
         List<MasterDataListManagementResponseDTO> listaData = moduleManagementSer.listDataMasterTables(schemaTable);
         return ResponseEntity.ok(listaData);
+    }
+
+    @PutMapping("/update-permissions")
+    public ResponseEntity<SpResponseDTO> updatePermissions(@RequestBody UpdateRolePermissionsRequestDTO updateRolesPermissionsRequest){
+        SpResponseDTO responseDTO = moduleManagementSer.updateRolePermissions(updateRolesPermissionsRequest);
+        return ResponseEntity.ok(responseDTO);
     }
 }

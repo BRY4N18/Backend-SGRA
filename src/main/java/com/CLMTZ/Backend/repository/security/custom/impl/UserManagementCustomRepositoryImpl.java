@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
@@ -33,6 +34,7 @@ public class UserManagementCustomRepositoryImpl implements IUserManagementCustom
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserListManagementResponseDTO> listUsersManagement(String filterUser, LocalDate date, Boolean state) {
         String query = "SELECT * FROM seguridad.fn_sl_gusuarios(:p_filtro_usuario, :p_fecha, :p_estado)";
 
@@ -45,6 +47,7 @@ public class UserManagementCustomRepositoryImpl implements IUserManagementCustom
     }
 
     @Override
+    @Transactional
     public SpResponseDTO createUserManagement(String user, String password, String roles) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargusuario");
 
@@ -67,6 +70,7 @@ public class UserManagementCustomRepositoryImpl implements IUserManagementCustom
     }
 
     @Override
+    @Transactional
     public SpResponseDTO updateUserManagement(Integer userId, String user, String password, String roles){
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_up_gusuario");
 
