@@ -12,7 +12,6 @@ import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.model.security.RoleManagement;
 import com.CLMTZ.Backend.repository.security.IRoleManagementRepository;
 import com.CLMTZ.Backend.repository.security.custom.IRoleManagementCustomRepository;
-import com.CLMTZ.Backend.repository.security.IAdminDynamicRepository;
 import com.CLMTZ.Backend.service.security.IRoleManagementService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
 
     private final IRoleManagementRepository roleManagementRepo;
     private final IRoleManagementCustomRepository roleManagementCustomRepo;
-    private final IAdminDynamicRepository adminDynamicRepo;
 
     @Override
     public List<RoleManagementDTO> findAll() { return roleManagementRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList()); }
@@ -78,22 +76,30 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
         try{
             String textFilter = (filter == null) ? "" : filter;
             Boolean stateFilter = (state == null) ? true : state;
-
             return roleManagementCustomRepo.listRolesManagement(textFilter, stateFilter);
         } catch(Exception e) {
-            throw new RuntimeException("Error al cargar el listado de usuarios" + e.getMessage());
+            throw new RuntimeException("Error al cargar el listado de usuarios: " + e.getMessage());
         }
     }
 
     @Override
     @Transactional
-    public SpResponseDTO createGRole(RoleManagementDTO roleRequest){
-        return adminDynamicRepo.createGRole(roleRequest.getRoleG(), roleRequest.getDescription());
+    public SpResponseDTO createRoleManagement(RoleManagementDTO roleRequest){
+        try{
+            return roleManagementCustomRepo.createRoleManagement(roleRequest.getRoleG(), roleRequest.getDescription());
+        } catch (Exception e){
+            throw new RuntimeException("Error al crear el rol: " + e.getMessage());
+        } 
+        
     }
 
     @Override
     @Transactional
-    public SpResponseDTO updateGRole(RoleManagementDTO roleRequest){
-        return adminDynamicRepo.updateGRole(roleRequest.getRoleGId(), roleRequest.getRoleG(), roleRequest.getDescription());
+    public SpResponseDTO updateRoleManagement(RoleManagementDTO roleRequest){
+        try{
+            return roleManagementCustomRepo.updateRoleManagement(roleRequest.getRoleGId(), roleRequest.getRoleG(), roleRequest.getDescription());
+        } catch (Exception e){
+            throw new RuntimeException("Error al editar el rol: " + e.getMessage());
+        }
     }
 }

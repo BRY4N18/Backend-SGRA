@@ -36,13 +36,13 @@ public class RoleManagementController {
 
     @PostMapping("/create-role")
     public ResponseEntity<SpResponseDTO> createGRole(@RequestBody RoleManagementDTO requestRole) {
-        SpResponseDTO request = roleManagementSer.createGRole(requestRole);
+        SpResponseDTO request = roleManagementSer.createRoleManagement(requestRole);
         return ResponseEntity.ok(request);
     }
 
     @PutMapping("/update-role")
-    public ResponseEntity<SpResponseDTO> updateGRole(@RequestBody RoleManagementDTO requestRole) {
-        SpResponseDTO request = roleManagementSer.updateGRole(requestRole);
+    public ResponseEntity<SpResponseDTO> updateRoleManagement(@RequestBody RoleManagementDTO requestRole) {
+        SpResponseDTO request = roleManagementSer.updateRoleManagement(requestRole);
         return ResponseEntity.ok(request);
     }
     

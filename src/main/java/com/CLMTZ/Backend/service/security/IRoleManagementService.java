@@ -12,8 +12,8 @@ public interface IRoleManagementService {
     RoleManagementDTO update(Integer id, RoleManagementDTO dto);
     void deleteById(Integer id);
 
-    SpResponseDTO createGRole(RoleManagementDTO roleRequest);
-    SpResponseDTO updateGRole(RoleManagementDTO rolRequest);
+    SpResponseDTO createRoleManagement(RoleManagementDTO roleRequest);
+    SpResponseDTO updateRoleManagement(RoleManagementDTO rolRequest);
     List<RoleListManagementResponseDTO> listRolesManagement(String filter, Boolean state);
     List<RoleManagementDTO> listRoleNames();
 }

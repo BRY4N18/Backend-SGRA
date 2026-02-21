@@ -9,10 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.repository.security.custom.IRoleManagementCustomRepository;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -36,5 +39,49 @@ public class RoleManagementRepositoryImpl implements IRoleManagementCustomReposi
                 .addValue("p_estado", state != null ? state : true);
 
         return getJdbcTemplate().query(query, params, new BeanPropertyRowMapper<>(RoleListManagementResponseDTO.class));
+    }
+
+    @Override
+    public SpResponseDTO createRoleManagement(String role, String description){
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_creargrol");
+
+        query.registerStoredProcedureParameter("p_grol", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_descripcion", String.class, ParameterMode.IN);
+
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_grol", role);
+        query.setParameter("p_descripcion", description);
+
+        query.execute();
+
+        String message = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
+
+        return new SpResponseDTO(message, success);
+    }
+
+    @Override
+    public SpResponseDTO updateRoleManagement(Integer roleId, String role, String description){
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_up_grol");
+
+        query.registerStoredProcedureParameter("p_idgrol", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_grol", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_descripcion", String.class, ParameterMode.IN);
+
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_idgrol", roleId);
+        query.setParameter("p_grol", role);
+        query.setParameter("p_descripcion", description);
+
+        query.execute();
+
+        String message = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
+
+        return new SpResponseDTO(message, success);
     }
 }
