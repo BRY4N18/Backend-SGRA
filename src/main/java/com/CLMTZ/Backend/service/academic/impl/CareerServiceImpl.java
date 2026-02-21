@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.CLMTZ.Backend.dto.academic.CareerDTO;
+import com.CLMTZ.Backend.dto.academic.CareerLoadDTO;
 import com.CLMTZ.Backend.model.academic.Career;
 import com.CLMTZ.Backend.repository.academic.IAcademicAreaRepository;
 import com.CLMTZ.Backend.repository.academic.ICareerRepository;
@@ -86,5 +87,11 @@ public class CareerServiceImpl implements ICareerService {
                     .orElseThrow(() -> new RuntimeException("Modality not found")));
         }
         return entity;
+    }
+
+    @Override
+    public List<String> uploadCareers(List<CareerLoadDTO> dtos) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'uploadCareers'");
     }
 }

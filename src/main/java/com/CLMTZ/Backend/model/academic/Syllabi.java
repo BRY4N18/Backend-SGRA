@@ -38,4 +38,29 @@ public class Syllabi {
 
     @OneToMany(mappedBy = "topicId", fetch = FetchType.LAZY)
     private List<ReinforcementRequest> reinforcementRequests;
+
+    public void setCarrera(String cellValue) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setCarrera'");
+    }
+
+    public void setModalidad(String cellValue) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setModalidad'");
+    }
+
+    public void setAsignatura(String cellValue) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setAsignatura'");
+    }
+
+    public void setPeriodo(String cellValue) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setPeriodo'");
+    }
+
+    public void setParalelo(String cellValue) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setParalelo'");
+    }
 }

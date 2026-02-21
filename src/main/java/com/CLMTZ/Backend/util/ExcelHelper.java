@@ -1,14 +1,24 @@
 package com.CLMTZ.Backend.util;
 
+import com.CLMTZ.Backend.dto.academic.CareerLoadDTO;
+import com.CLMTZ.Backend.dto.academic.ClassScheduleLoadDTO;
+import com.CLMTZ.Backend.dto.academic.EnrollmentDetailLoadDTO;
+import com.CLMTZ.Backend.dto.academic.PeriodLoadDTO;
 import com.CLMTZ.Backend.dto.academic.StudentLoadDTO;
+import com.CLMTZ.Backend.dto.academic.SubjectLoadDTO;
+import com.CLMTZ.Backend.dto.academic.SyllabiDTO;
+import com.CLMTZ.Backend.dto.academic.SyllabiLoadDTO;
 import com.CLMTZ.Backend.dto.academic.TeachingDTO;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,6 +109,201 @@ public class ExcelHelper {
             return docentes;
         } catch (IOException e) {
             throw new RuntimeException("Error al parsear el archivo Excel de Docentes: " + e.getMessage());
+        }
+    }
+
+    public static List<SyllabiLoadDTO> excelToSyllabi(InputStream is) {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<SyllabiLoadDTO> syllabiList = new ArrayList<>();
+
+            // Empezamos en la fila 1 (saltando cabeceras)
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+
+                SyllabiLoadDTO syllabi = new SyllabiLoadDTO();
+                // Columna A (0): Carrera
+                syllabi.setCarreraTexto(getCellValue(row, 0));
+                // Columna B (1): Asignatura
+                syllabi.setAsignaturaTexto(getCellValue(row, 1));
+                // Columna C (2): Unidad (Como es número, lo parseamos y evitamos el "1.0" que a veces saca Excel)
+                String unidadStr = getCellValue(row, 2).replace(".0", "");
+                syllabi.setUnidad(unidadStr.isEmpty() ? 0 : Integer.parseInt(unidadStr));
+                // Columna D (3): Nombre del Tema
+                syllabi.setNombreTema(getCellValue(row, 3));
+                syllabiList.add(syllabi);
+            }
+            return syllabiList;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear el archivo Excel de Temarios: " + e.getMessage());
+        }
+    }
+    public static List<CareerLoadDTO> excelToCareers(InputStream is) {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<CareerLoadDTO> careerList = new ArrayList<>();
+
+            // Fila 1 en adelante (saltamos las cabeceras en la fila 0)
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+
+                CareerLoadDTO career = new CareerLoadDTO();
+                // Columna A (0): Área Académica (Facultad)
+                career.setNombreArea(getCellValue(row, 0));
+                // Columna B (1): Abreviatura
+                career.setAbrevArea(getCellValue(row, 1));
+                // Columna C (2): Modalidad
+                career.setNombreModalidad(getCellValue(row, 2));
+                // Columna D (3): Nombre de la Carrera
+                career.setNombreCarrera(getCellValue(row, 3));
+                // Columna E (4): Número de Semestres
+                // Usamos replace para evitar que Excel lea "8" como "8.0"
+                String semestresStr = getCellValue(row, 4).replace(".0", "");
+                career.setSemestres(semestresStr.isEmpty() ? 0 : Short.parseShort(semestresStr));
+                careerList.add(career);
+            }
+            return careerList;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear el archivo Excel de Carreras: " + e.getMessage());
+        }
+    }
+
+    public static List<SubjectLoadDTO> excelToSubjects(InputStream is) {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<SubjectLoadDTO> subjectList = new ArrayList<>();
+
+            // Fila 1 en adelante (saltamos las cabeceras)
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+
+                SubjectLoadDTO subject = new SubjectLoadDTO();
+                // Columna A (0): Nombre de la Carrera
+                subject.setNombreCarrera(getCellValue(row, 0));
+                // Columna B (1): Nombre de la Asignatura
+                subject.setNombreAsignatura(getCellValue(row, 1));
+                // Columna C (2): Semestre (Es un número, así que lo limpiamos)
+                String semestreStr = getCellValue(row, 2).replace(".0", "");
+                subject.setSemestre(semestreStr.isEmpty() ? 0 : Short.parseShort(semestreStr));
+
+                subjectList.add(subject);
+            }
+            return subjectList;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear el archivo Excel de Asignaturas: " + e.getMessage());
+        }
+    }
+
+    public static List<PeriodLoadDTO> excelToPeriods(InputStream is) {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<PeriodLoadDTO> periodList = new ArrayList<>();
+
+            // Fila 1 en adelante (saltamos las cabeceras)
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+
+                PeriodLoadDTO period = new PeriodLoadDTO();
+                
+                // Columna A (0): Nombre del Periodo
+                period.setNombrePeriodo(getCellValue(row, 0));
+                
+                // Columna B (1): Fecha de Inicio (Formato esperado: YYYY-MM-DD)
+                String fechaInicioStr = getCellValue(row, 1);
+                period.setFechaInicio(LocalDate.parse(fechaInicioStr));
+                
+                // Columna C (2): Fecha de Fin (Formato esperado: YYYY-MM-DD)
+                String fechaFinStr = getCellValue(row, 2);
+                period.setFechaFin(LocalDate.parse(fechaFinStr));
+
+                periodList.add(period);
+            }
+            return periodList;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear el archivo Excel de Periodos. Asegúrese de que las fechas tengan formato YYYY-MM-DD. Detalles: " + e.getMessage());
+        }
+    }
+
+    public static List<EnrollmentDetailLoadDTO> excelToEnrollmentDetails(InputStream is) {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<EnrollmentDetailLoadDTO> detailList = new ArrayList<>();
+
+            // Fila 1 en adelante (saltamos cabeceras)
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+
+                EnrollmentDetailLoadDTO detail = new EnrollmentDetailLoadDTO();
+                
+                // Columna A (0): Cédula del Estudiante
+                detail.setCedulaEstudiante(getCellValue(row, 0));
+                
+                // Columna B (1): Periodo
+                detail.setPeriodo(getCellValue(row, 1));
+                
+                // Columna C (2): Nombre de la Asignatura
+                detail.setNombreAsignatura(getCellValue(row, 2));
+                
+                // Columna D (3): Paralelo
+                detail.setParalelo(getCellValue(row, 3));
+
+                detailList.add(detail);
+            }
+            return detailList;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear el archivo Excel de Detalles de Matrícula: " + e.getMessage());
+        }
+    }
+
+    public static List<ClassScheduleLoadDTO> excelToClassSchedules(InputStream is) {
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            List<ClassScheduleLoadDTO> scheduleList = new ArrayList<>();
+
+            // Fila 1 en adelante (saltamos cabeceras)
+            for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null || isRowEmpty(row)) continue;
+
+                ClassScheduleLoadDTO schedule = new ClassScheduleLoadDTO();
+                
+                // Columna A (0): Cédula del Docente
+                schedule.setCedulaDocente(getCellValue(row, 0));
+                
+                // Columna B (1): Nombre Asignatura
+                schedule.setNombreAsignatura(getCellValue(row, 1));
+                
+                // Columna C (2): Paralelo
+                schedule.setNombreParalelo(getCellValue(row, 2));
+                
+                // Columna D (3): Periodo
+                schedule.setNombrePeriodo(getCellValue(row, 3));
+                
+                // Columna E (4): Día de la semana (1 a 7)
+                String diaStr = getCellValue(row, 4).replace(".0", "");
+                schedule.setDiaSemana(diaStr.isEmpty() ? 0 : Integer.parseInt(diaStr));
+                
+                // Columna F (5): Hora Inicio (Formato HH:mm)
+                String horaInicioStr = getCellValue(row, 5);
+                // Si el Excel pasa segundos "08:00:00", nos quedamos con "08:00"
+                if(horaInicioStr.length() > 5) horaInicioStr = horaInicioStr.substring(0, 5);
+                schedule.setHoraInicio(LocalTime.parse(horaInicioStr));
+                
+                // Columna G (6): Hora Fin (Formato HH:mm)
+                String horaFinStr = getCellValue(row, 6);
+                if(horaFinStr.length() > 5) horaFinStr = horaFinStr.substring(0, 5);
+                schedule.setHoraFin(LocalTime.parse(horaFinStr));
+
+                scheduleList.add(schedule);
+            }
+            return scheduleList;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear el archivo Excel de Horarios. Verifica que las horas estén en formato HH:mm. Detalles: " + e.getMessage());
         }
     }
 

@@ -309,8 +309,6 @@ public class CoordinationServiceImpl implements ICoordinationService {
         return Boolean.TRUE.equals(exito) ? "OK" : "FALLÓ SP: " + mensajeRetorno;
     }
 
-    // --- NUEVOS MÉTODOS PARA OTROS SP ---
-
     // 1. Estructura Universitaria (Carrera)
     private String ejecutarCargaCarreraSP(String nombre, String codigo, Integer idFacultad) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("academico.sp_in_carga_carrera");
@@ -366,7 +364,7 @@ public class CoordinationServiceImpl implements ICoordinationService {
         return Boolean.TRUE.equals(exito) ? "OK" : "FALLÓ SP: " + mensaje;
     }
 
-    // 4. Materias del Estudiante (Detalle Matrícula)
+    // 4. Registration/Matricula de Estudiantes
     private String ejecutarCargaDetalleMatriculaSP(String cedula, Integer idAsignatura, Integer idParalelo, Integer idPeriodo) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("academico.sp_in_carga_detalle_matricula");
         query.registerStoredProcedureParameter("p_identificador", String.class, ParameterMode.IN);
@@ -385,7 +383,7 @@ public class CoordinationServiceImpl implements ICoordinationService {
         return Boolean.TRUE.equals(exito) ? "OK" : "FALLÓ SP: " + mensaje;
     }
 
-    // 5. Horarios de Clases
+    // 5. SHEDULE/Horario de Clases
     private String ejecutarCargaHorarioClaseSP(Integer idAsignatura, Integer idParalelo, Integer idPeriodo, String dia, String horaInicio, String horaFin) {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("academico.sp_in_carga_horarioclase");
         query.registerStoredProcedureParameter("p_idasignatura", Integer.class, ParameterMode.IN);
