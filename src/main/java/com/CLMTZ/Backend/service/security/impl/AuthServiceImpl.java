@@ -1,9 +1,9 @@
 package com.CLMTZ.Backend.service.security.impl;
 
 import com.CLMTZ.Backend.config.UserConnectionPool;
-import com.CLMTZ.Backend.dto.security.LoginRequestDTO;
-import com.CLMTZ.Backend.dto.security.LoginResponseDTO;
-import com.CLMTZ.Backend.dto.security.ServerCredentialDTO;
+import com.CLMTZ.Backend.dto.security.Request.LoginRequestDTO;
+import com.CLMTZ.Backend.dto.security.Request.ServerCredentialRequestDTO;
+import com.CLMTZ.Backend.dto.security.Response.LoginResponseDTO;
 import com.CLMTZ.Backend.dto.security.session.UserContext;
 import com.CLMTZ.Backend.model.general.User;
 import com.CLMTZ.Backend.model.security.Access;
@@ -90,9 +90,9 @@ public class AuthServiceImpl implements IAuthService {
         String dbPassword = null;
 
         if (masterKey != null && !masterKey.isEmpty()) {
-            Optional<ServerCredentialDTO> serverCredOpt = serverCredentialRepository.getServerCredential(user.getUserId(), masterKey);
+            Optional<ServerCredentialRequestDTO> serverCredOpt = serverCredentialRepository.getServerCredential(user.getUserId(), masterKey);
             if (serverCredOpt.isPresent()) {
-                ServerCredentialDTO serverCred = serverCredOpt.get();
+                ServerCredentialRequestDTO serverCred = serverCredOpt.get();
                 serverSynced = true;
                 dbUser = serverCred.getDbUser();
                 dbPassword = serverCred.getDbPassword();

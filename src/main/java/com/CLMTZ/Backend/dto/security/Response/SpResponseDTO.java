@@ -1,4 +1,4 @@
-package com.CLMTZ.Backend.dto.security;
+package com.CLMTZ.Backend.dto.security.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -3,17 +3,17 @@ package com.CLMTZ.Backend.service.security;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.CLMTZ.Backend.dto.security.SpResponseDTO;
-import com.CLMTZ.Backend.dto.security.UserManagementDTO;
+import com.CLMTZ.Backend.dto.security.Request.UserManagementRequestDTO;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
 
 public interface IUserManagementService {
-    List<UserManagementDTO> findAll();
-    UserManagementDTO findById(Integer id);
-    UserManagementDTO save(UserManagementDTO dto);
-    UserManagementDTO update(Integer id, UserManagementDTO dto);
+    List<UserManagementRequestDTO> findAll();
+    UserManagementRequestDTO findById(Integer id);
+    UserManagementRequestDTO save(UserManagementRequestDTO dto);
+    UserManagementRequestDTO update(Integer id, UserManagementRequestDTO dto);
     void deleteById(Integer id);
-    SpResponseDTO createGUser(UserManagementDTO userRequest);
-    SpResponseDTO updateGUser(UserManagementDTO userRequest);
+    SpResponseDTO createUserManagement(UserManagementRequestDTO userRequest);
+    SpResponseDTO updateUserManagement(UserManagementRequestDTO userRequest);
     List<UserListManagementResponseDTO> listUserListManagement(String filterUser, LocalDate date, Boolean state);
 }

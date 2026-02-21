@@ -1,4 +1,4 @@
-package com.CLMTZ.Backend.dto.security;
+package com.CLMTZ.Backend.dto.security.Request;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserManagementDTO {
+public class UserManagementRequestDTO {
     private Integer userGId;
     private String user;
     private String password;

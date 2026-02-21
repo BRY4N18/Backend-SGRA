@@ -1,7 +1,7 @@
 package com.CLMTZ.Backend.controller.security;
 
-import com.CLMTZ.Backend.dto.security.LoginRequestDTO;
-import com.CLMTZ.Backend.dto.security.LoginResponseDTO;
+import com.CLMTZ.Backend.dto.security.Request.LoginRequestDTO;
+import com.CLMTZ.Backend.dto.security.Response.LoginResponseDTO;
 import com.CLMTZ.Backend.service.security.IAuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

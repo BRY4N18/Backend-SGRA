@@ -1,4 +1,4 @@
-package com.CLMTZ.Backend.repository.security.icustom;
+package com.CLMTZ.Backend.repository.security.custom;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.CLMTZ.Backend.repository.security.impl;
 
-import com.CLMTZ.Backend.dto.security.ServerCredentialDTO;
+import com.CLMTZ.Backend.dto.security.Request.ServerCredentialRequestDTO;
 import com.CLMTZ.Backend.repository.security.IServerCredentialRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +23,17 @@ public class ServerCredentialRepositoryImpl implements IServerCredentialReposito
     }
 
     @Override
-    public Optional<ServerCredentialDTO> getServerCredential(Integer userId, String masterKey) {
+    public Optional<ServerCredentialRequestDTO> getServerCredential(Integer userId, String masterKey) {
         try {
             MapSqlParameterSource params = new MapSqlParameterSource();
             params.addValue("userId", userId);
             params.addValue("masterKey", masterKey);
 
-            List<ServerCredentialDTO> results = namedParameterJdbcTemplate.query(
+            List<ServerCredentialRequestDTO> results = namedParameterJdbcTemplate.query(
                     getServerCredentialQuery(),
                     params,
                     (rs, rowNum) -> {
-                        ServerCredentialDTO credential = new ServerCredentialDTO();
+                        ServerCredentialRequestDTO credential = new ServerCredentialRequestDTO();
                         credential.setDbUser(rs.getString("db_usuario"));
                         credential.setDbPassword(rs.getString("db_password"));
                         return credential;

@@ -5,9 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.CLMTZ.Backend.dto.security.RoleManagementDTO;
-import com.CLMTZ.Backend.dto.security.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
-import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO01;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.service.security.IRoleManagementService;
 import lombok.RequiredArgsConstructor;
 

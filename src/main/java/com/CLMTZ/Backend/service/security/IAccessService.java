@@ -1,12 +1,13 @@
 package com.CLMTZ.Backend.service.security;
 
 import java.util.List;
-import com.CLMTZ.Backend.dto.security.AccessDTO;
+
+import com.CLMTZ.Backend.dto.security.Request.AccessRequestDTO;
 
 public interface IAccessService {
-    List<AccessDTO> findAll();
-    AccessDTO findById(Integer id);
-    AccessDTO save(AccessDTO dto);
-    AccessDTO update(Integer id, AccessDTO dto);
+    List<AccessRequestDTO> findAll();
+    AccessRequestDTO findById(Integer id);
+    AccessRequestDTO save(AccessRequestDTO dto);
+    AccessRequestDTO update(Integer id, AccessRequestDTO dto);
     void deleteById(Integer id);
 }

@@ -1,12 +1,13 @@
 package com.CLMTZ.Backend.service.security;
 
 import java.util.List;
-import com.CLMTZ.Backend.dto.security.RoleDTO;
+
+import com.CLMTZ.Backend.dto.security.Request.RoleRequestDTO;
 
 public interface IRoleService {
-    List<RoleDTO> findAll();
-    RoleDTO findById(Integer id);
-    RoleDTO save(RoleDTO dto);
-    RoleDTO update(Integer id, RoleDTO dto);
+    List<RoleRequestDTO> findAll();
+    RoleRequestDTO findById(Integer id);
+    RoleRequestDTO save(RoleRequestDTO dto);
+    RoleRequestDTO update(Integer id, RoleRequestDTO dto);
     void deleteById(Integer id);
 }

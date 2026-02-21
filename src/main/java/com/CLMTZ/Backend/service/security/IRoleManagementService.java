@@ -2,8 +2,8 @@ package com.CLMTZ.Backend.service.security;
 
 import java.util.List;
 import com.CLMTZ.Backend.dto.security.RoleManagementDTO;
-import com.CLMTZ.Backend.dto.security.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 
 public interface IRoleManagementService {
     List<RoleManagementDTO> findAll();

@@ -1,6 +1,5 @@
-package com.CLMTZ.Backend.repository.security.impl;
+package com.CLMTZ.Backend.repository.security.custom.impl;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -9,8 +8,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
-import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
-import com.CLMTZ.Backend.repository.security.icustom.IUserManagementCustomRepository;
+import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
+import com.CLMTZ.Backend.repository.security.custom.IRoleManagementCustomRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class UserManagementRepositoryImpl implements IUserManagementCustomRepository{
-    
+public class RoleManagementRepositoryImpl implements IRoleManagementCustomRepository{
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -30,14 +29,12 @@ public class UserManagementRepositoryImpl implements IUserManagementCustomReposi
     }
 
     @Override
-    public List<UserListManagementResponseDTO> listUsersManagement(String filterUser, LocalDate date, Boolean state) {
-        String query = "SELECT * FROM seguridad.fn_sl_gusuarios(:p_filtro_usuario, :p_fecha, :p_estado)";
-
+    public List<RoleListManagementResponseDTO> listRolesManagement(String filter,Boolean state){
+        String query = "SELECT * FROM seguridad.fn_sl_groles(:p_filtro_texto, :p_estado)";
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("p_filtro_usuario", filterUser)
-                .addValue("p_fecha", date)
-                .addValue("p_estado", state);
-        
-        return getJdbcTemplate().query(query, params, new BeanPropertyRowMapper<>(UserListManagementResponseDTO.class));
+                .addValue("p_filtro_texto", filter != null ? filter : "")
+                .addValue("p_estado", state != null ? state : true);
+
+        return getJdbcTemplate().query(query, params, new BeanPropertyRowMapper<>(RoleListManagementResponseDTO.class));
     }
 }

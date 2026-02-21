@@ -4,7 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.CLMTZ.Backend.dto.security.ModuleManagementDTO;
+
+import com.CLMTZ.Backend.dto.security.Request.ModuleManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
@@ -21,16 +22,16 @@ public class ModuleManagementController {
     private final IModuleManagementService moduleManagementSer;
     
     @GetMapping
-    public ResponseEntity<List<ModuleManagementDTO>> findAll() { return ResponseEntity.ok(moduleManagementSer.findAll()); }
+    public ResponseEntity<List<ModuleManagementRequestDTO>> findAll() { return ResponseEntity.ok(moduleManagementSer.findAll()); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ModuleManagementDTO> findById(@PathVariable Integer id) { return ResponseEntity.ok(moduleManagementSer.findById(id)); }
+    public ResponseEntity<ModuleManagementRequestDTO> findById(@PathVariable Integer id) { return ResponseEntity.ok(moduleManagementSer.findById(id)); }
 
     @PostMapping
-    public ResponseEntity<ModuleManagementDTO> save(@RequestBody ModuleManagementDTO dto) { return new ResponseEntity<>(moduleManagementSer.save(dto), HttpStatus.CREATED); }
+    public ResponseEntity<ModuleManagementRequestDTO> save(@RequestBody ModuleManagementRequestDTO dto) { return new ResponseEntity<>(moduleManagementSer.save(dto), HttpStatus.CREATED); }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ModuleManagementDTO> update(@PathVariable Integer id, @RequestBody ModuleManagementDTO dto) { return ResponseEntity.ok(moduleManagementSer.update(id, dto)); }
+    public ResponseEntity<ModuleManagementRequestDTO> update(@PathVariable Integer id, @RequestBody ModuleManagementRequestDTO dto) { return ResponseEntity.ok(moduleManagementSer.update(id, dto)); }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) { moduleManagementSer.deleteById(id); return ResponseEntity.noContent().build(); }
