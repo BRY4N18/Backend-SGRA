@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.CLMTZ.Backend.dto.academic.SyllabiDTO;
+import com.CLMTZ.Backend.dto.academic.SyllabiLoadDTO;
 import com.CLMTZ.Backend.model.academic.Syllabi;
 import com.CLMTZ.Backend.repository.academic.ISubjectRepository;
 import com.CLMTZ.Backend.repository.academic.ISyllabiRepository;
@@ -63,5 +64,10 @@ public class SyllabiServiceImpl implements ISyllabiService {
         entity.setState(dto.getState() != null ? dto.getState() : true);
         if (dto.getSubjectId() != null) entity.setSubjectId(subjectRepository.findById(dto.getSubjectId()).orElseThrow(() -> new RuntimeException("Subject not found")));
         return entity;
+    }
+
+    @Override
+    public List<String> uploadSyllabi(List<SyllabiLoadDTO> syllabiDTOs){
+        return null;
     }
 }
