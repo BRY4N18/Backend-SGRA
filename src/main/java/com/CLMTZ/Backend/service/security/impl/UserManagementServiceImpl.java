@@ -1,6 +1,7 @@
 package com.CLMTZ.Backend.service.security.impl;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.stream.Collectors;
@@ -11,12 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.CLMTZ.Backend.dto.security.Request.UserManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.UserRoleManagementResponseDTO;
 import com.CLMTZ.Backend.model.security.UserManagement;
 import com.CLMTZ.Backend.repository.security.IUserManagementRepository;
 import com.CLMTZ.Backend.repository.security.custom.IUserManagementCustomRepository;
 import com.CLMTZ.Backend.service.security.IUserManagementService;
 
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
 
     private final IUserManagementRepository userManagementRepo;
     private final IUserManagementCustomRepository userManagementCustRepo;
+    private final ObjectMapper objectMapper;
 
     @Override
     public List<UserManagementRequestDTO> findAll() { return userManagementRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList()); }
@@ -82,18 +86,37 @@ public class UserManagementServiceImpl implements IUserManagementService {
 
     @Override
     @Transactional
-    public SpResponseDTO updateUserManagement(UserManagementRequestDTO userRequest){
+    public SpResponseDTO updateUserManagement(UserRoleManagementResponseDTO userRequest){
         try {
-            String roles = "";
-            if(userRequest.getRoles() != null && !userRequest.getRoles().isEmpty()) {
-                roles = userRequest.getRoles().stream().
-                map(String::valueOf).collect(Collectors.joining(","));
-            }
+            String jsonUser = objectMapper.writeValueAsString(userRequest);
 
-            return userManagementCustRepo.updateUserManagement(userRequest.getUserGId(), userRequest.getUser(), userRequest.getPassword(), roles);
+            return userManagementCustRepo.updateUserManagement(jsonUser);
 
         } catch (Exception e) {
-            return new SpResponseDTO("Error editar al usuarios" + e.getMessage(), false);
-        }  
+            e.printStackTrace();
+            return new SpResponseDTO("Error inesperado en el JSON: " + e.getCause().getMessage(), false);
+        } 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserRoleManagementResponseDTO DataUserById(Integer idUser) {
+        try {
+            UserRoleManagementResponseDTO userManagement = userManagementCustRepo.DataUserById(idUser);
+
+            if (userManagement.getRolesasignadosgu() != null && !userManagement.getRolesasignadosgu().isEmpty()) {
+
+                List<Integer> rolesList = Arrays.stream(userManagement.getRolesasignadosgu().split(","))
+                        .map(Integer::parseInt)
+                        .toList();
+
+                userManagement.setRoles(rolesList);
+            }
+
+            return userManagement;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener el usuario: " + e.getCause().getMessage());
+        }
     }
 }

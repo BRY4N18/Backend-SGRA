@@ -6,6 +6,7 @@ import java.util.List;
 import com.CLMTZ.Backend.dto.security.Request.UserManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.UserRoleManagementResponseDTO;
 
 public interface IUserManagementService {
     List<UserManagementRequestDTO> findAll();
@@ -15,6 +16,7 @@ public interface IUserManagementService {
     void deleteById(Integer id);
     
     SpResponseDTO createUserManagement(UserManagementRequestDTO userRequest);
-    SpResponseDTO updateUserManagement(UserManagementRequestDTO userRequest);
+    SpResponseDTO updateUserManagement(UserRoleManagementResponseDTO userRequest);
     List<UserListManagementResponseDTO> listUserListManagement(String filterUser, LocalDate date, Boolean state);
+    UserRoleManagementResponseDTO DataUserById(Integer idUser);
 }
