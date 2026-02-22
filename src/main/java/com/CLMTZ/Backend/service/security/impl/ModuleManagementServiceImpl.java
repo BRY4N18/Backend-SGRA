@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
-
+import com.CLMTZ.Backend.dto.security.Request.MasterManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Request.ModuleManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Request.UpdateRolePermissionsRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
@@ -76,6 +76,15 @@ public class ModuleManagementServiceImpl implements IModuleManagementService {
 
         } catch (Exception e) {
             return new SpResponseDTO("Error al guardar los permisos: " + e.getMessage(), false);
+        }
+    }
+
+    @Override
+    public SpResponseDTO masterTablesManagement(MasterManagementRequestDTO masterTables){
+        try {
+            return moduleManagementCustomRepo.masterTablesManagement(masterTables);
+        } catch (Exception e) {
+            return new SpResponseDTO("Error al guardar el nuevo registro de la tabla: " + e.getMessage(), false);
         }
     }
 }

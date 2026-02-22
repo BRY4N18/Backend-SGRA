@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
+import com.CLMTZ.Backend.dto.security.Request.MasterManagementRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterDataListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.MasterTableListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.ModuleListManagementResponseDTO;
@@ -73,6 +74,27 @@ public class ModuleCustomManagementRepository implements IModuleCustomManagement
         query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
 
         query.setParameter("p_permisos", jsonPermissions);
+
+        query.execute();
+
+        String message = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
+
+        return new SpResponseDTO(message, success);
+    }
+
+    @Override
+    @Transactional
+    public SpResponseDTO masterTablesManagement(MasterManagementRequestDTO masterTables){
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_in_tablas_maestras");
+
+        query.registerStoredProcedureParameter("p_esquematabla", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_valor", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_esquematabla", masterTables.getEsquematabla());
+        query.setParameter("p_valor", masterTables.getNombre());
 
         query.execute();
 
