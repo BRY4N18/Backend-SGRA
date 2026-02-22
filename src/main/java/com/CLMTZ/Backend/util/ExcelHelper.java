@@ -45,7 +45,7 @@ public class ExcelHelper {
         // Validar por content-type
         if (contentType != null) {
             return TYPE.equals(contentType) || TYPE_XLS.equals(contentType) || 
-                   contentType.contains("spreadsheet") || contentType.contains("excel");
+                contentType.contains("spreadsheet") || contentType.contains("excel");
         }
         
         return false;

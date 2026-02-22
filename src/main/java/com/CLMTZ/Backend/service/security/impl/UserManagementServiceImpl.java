@@ -65,7 +65,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
         try {
             return userManagementCustRepo.listUsersManagement(filterUser, date, state);
         } catch (Exception e) {
-            throw new RuntimeException("Error al listar a los usuarios" + e.getMessage());
+            throw new RuntimeException("Error al listar a los usuarios: " + e.getMessage());
         }  
     }
 
@@ -117,7 +117,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
             return userManagement;
 
         } catch (Exception e) {
-            throw new RuntimeException("Error al obtener el usuario: " + e.getCause().getMessage());
+            throw new RuntimeException("Error al obtener el usuario: " + e.getMessage());
         }
     }
 }
