@@ -58,7 +58,7 @@ public class UserManagementController {
     }
     
     @PutMapping("/update-user")
-    public ResponseEntity<SpResponseDTO> updateGUser(@RequestBody UserManagementRequestDTO requestUser) {    
+    public ResponseEntity<SpResponseDTO> updateGUser(@RequestBody UserRoleManagementResponseDTO requestUser) {    
         
         SpResponseDTO request = userManagementser.updateUserManagement(requestUser);
 

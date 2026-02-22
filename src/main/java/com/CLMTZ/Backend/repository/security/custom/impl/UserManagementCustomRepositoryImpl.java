@@ -72,20 +72,15 @@ public class UserManagementCustomRepositoryImpl implements IUserManagementCustom
     }
 
     @Override
-    @Transactional
-    public SpResponseDTO updateUserManagement(Integer userId, String user, String password, String roles){
+    public SpResponseDTO updateUserManagement(String jsonUserId){
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("seguridad.sp_up_gusuario");
 
-        query.registerStoredProcedureParameter("p_idgusuario", Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("p_gusuario", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("p_gcontrasena", String.class, ParameterMode.IN);
-        
-        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
-        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_json_usuario", String.class, ParameterMode.IN);
 
-        query.setParameter("p_idgusuario", userId);
-        query.setParameter("p_gusuario", user);
-        query.setParameter("p_gcontrasena", password);
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", String.class, ParameterMode.OUT);
+
+        query.setParameter("p_json_usuario", jsonUserId);
 
         query.execute();
 

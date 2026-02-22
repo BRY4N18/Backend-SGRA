@@ -19,6 +19,7 @@ import com.CLMTZ.Backend.repository.security.custom.IUserManagementCustomReposit
 import com.CLMTZ.Backend.service.security.IUserManagementService;
 
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class UserManagementServiceImpl implements IUserManagementService {
 
     private final IUserManagementRepository userManagementRepo;
     private final IUserManagementCustomRepository userManagementCustRepo;
+    private final ObjectMapper objectMapper;
 
     @Override
     public List<UserManagementRequestDTO> findAll() { return userManagementRepo.findAll().stream().map(this::toDTO).collect(Collectors.toList()); }
@@ -84,19 +86,16 @@ public class UserManagementServiceImpl implements IUserManagementService {
 
     @Override
     @Transactional
-    public SpResponseDTO updateUserManagement(UserManagementRequestDTO userRequest){
+    public SpResponseDTO updateUserManagement(UserRoleManagementResponseDTO userRequest){
         try {
-            String roles = "";
-            if(userRequest.getRoles() != null && !userRequest.getRoles().isEmpty()) {
-                roles = userRequest.getRoles().stream().
-                map(String::valueOf).collect(Collectors.joining(","));
-            }
+            String jsonUser = objectMapper.writeValueAsString(userRequest);
 
-            return userManagementCustRepo.updateUserManagement(userRequest.getUserGId(), userRequest.getUser(), userRequest.getPassword(), roles);
+            return userManagementCustRepo.updateUserManagement(jsonUser);
 
         } catch (Exception e) {
-            return new SpResponseDTO("Error editar al usuarios" + e.getMessage(), false);
-        }  
+            e.printStackTrace();
+            return new SpResponseDTO("Error inesperado en el JSON: " + e.getCause().getMessage(), false);
+        } 
     }
 
     @Override

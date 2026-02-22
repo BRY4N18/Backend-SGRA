@@ -13,7 +13,7 @@ public interface IUserManagementCustomRepository {
 
         SpResponseDTO createUserManagement(String user, String password, String roles);
 
-        SpResponseDTO updateUserManagement(Integer userId, String user, String password, String roles);
+        SpResponseDTO updateUserManagement(String jsonUserId);
 
         UserRoleManagementResponseDTO DataUserById(Integer idUser);
 }
