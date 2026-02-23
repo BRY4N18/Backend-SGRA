@@ -32,8 +32,9 @@ public class RoleManagementController {
     @GetMapping("/list-roles")
     public ResponseEntity<List<RoleListManagementResponseDTO>> listRoles(
             @RequestParam(value = "filter", required = false) String filter,
-            @RequestParam(value = "state", defaultValue = "true") Boolean state) {
+            @RequestParam(value = "state", required = false) Boolean state) {
         List<RoleListManagementResponseDTO> list = roleManagementSer.listRolesManagement(filter, state);
+        System.out.println("Controlador: "+list);
         return ResponseEntity.ok(list);
     }
 

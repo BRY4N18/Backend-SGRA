@@ -43,9 +43,7 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
     @Transactional(readOnly = true)
     public List<RoleListManagementResponseDTO> listRolesManagement(String filter, Boolean state){
         try{
-            String textFilter = (filter == null) ? "" : filter;
-            Boolean stateFilter = (state == null) ? true : state;
-            return roleManagementCustomRepo.listRolesManagement(textFilter, stateFilter);
+            return roleManagementCustomRepo.listRolesManagement(filter, state);
         } catch(Exception e) {
             throw new RuntimeException("Error al cargar el listado de usuarios: " + e.getMessage());
         }
