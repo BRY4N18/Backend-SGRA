@@ -39,7 +39,6 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("p_filtro_texto", filter != null ? filter : "")
                 .addValue("p_estado", state);
-        System.out.println(params);
         return getJdbcTemplate().query(query, params, new BeanPropertyRowMapper<>(RoleListManagementResponseDTO.class));
     }
 
