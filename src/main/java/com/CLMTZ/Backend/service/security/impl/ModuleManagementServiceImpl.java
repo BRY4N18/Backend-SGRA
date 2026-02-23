@@ -38,8 +38,9 @@ public class ModuleManagementServiceImpl implements IModuleManagementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTables){
-        return moduleManagementCustomRepo.listDataMasterTables(schemaTables);
+    public List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTables, String filter){
+        String filtro = (filter == null) ? "" : filter;
+        return moduleManagementCustomRepo.listDataMasterTables(schemaTables,filtro);
     }
 
     @Override
@@ -69,7 +70,6 @@ public class ModuleManagementServiceImpl implements IModuleManagementService {
     @Transactional
     public SpResponseDTO masterDataUpdateManagement(MasterDataManagementRequestDTO dataUpdate){
         try {
-            System.out.println(dataUpdate);
             return moduleManagementCustomRepo.masterDataUpdateManagement(dataUpdate);
         } catch (Exception e) {
             return new SpResponseDTO("Error al actualizar el registro de la tabla: " + e.getMessage(), false);

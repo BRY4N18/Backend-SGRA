@@ -14,7 +14,7 @@ public interface IModuleCustomManagementRepository {
 
     List<MasterTableListManagementResponseDTO> listMasterTables();
 
-    List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTable);
+    List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTable, String filtro);
 
     SpResponseDTO updateRolePermissions(String jsonPermissions);
 

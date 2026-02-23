@@ -16,7 +16,7 @@ public interface IModuleManagementService {
 
     List<MasterTableListManagementResponseDTO> listMasterTables();
 
-    List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTables);
+    List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTables, String filter);
 
     SpResponseDTO updateRolePermissions(UpdateRolePermissionsRequestDTO updateRolesPermissions);
 

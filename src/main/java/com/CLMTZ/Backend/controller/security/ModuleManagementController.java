@@ -36,8 +36,10 @@ public class ModuleManagementController {
 
     @GetMapping("/list-data-master-table")
     public ResponseEntity<List<MasterDataListManagementResponseDTO>> listGDataMasterTables(
-            @RequestParam("schemaTable") String schemaTable) {
-        List<MasterDataListManagementResponseDTO> listaData = moduleManagementSer.listDataMasterTables(schemaTable);
+            @RequestParam(value = "p_esquematabla") String schemaTable,
+            @RequestParam(value = "p_filtro", required = false) String filter
+        ) {
+        List<MasterDataListManagementResponseDTO> listaData = moduleManagementSer.listDataMasterTables(schemaTable, filter);
         return ResponseEntity.ok(listaData);
     }
 
