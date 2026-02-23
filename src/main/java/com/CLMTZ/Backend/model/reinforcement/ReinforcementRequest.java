@@ -63,13 +63,13 @@ public class ReinforcementRequest {
 
     @Column(name = "diasolicitado", nullable = false, columnDefinition = "smallint")
     private Short requestedDay;
-    
+
     @Column(name = "motivo", length = 200, nullable = false)
     private String reason;
 
-    @Column(name = "urlarchivo", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "urlarchivo", nullable = true, columnDefinition = "TEXT")
     private String fileUrl;
-    
+
     @Column(name = "fechahoracreacion", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 

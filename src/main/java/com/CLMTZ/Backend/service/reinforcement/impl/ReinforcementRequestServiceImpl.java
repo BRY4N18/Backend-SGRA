@@ -32,10 +32,15 @@ public class ReinforcementRequestServiceImpl implements IReinforcementRequestSer
     private final IPeriodRepository periodRepository;
 
     @Override
-    public List<ReinforcementRequestDTO> findAll() { return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList()); }
+    public List<ReinforcementRequestDTO> findAll() {
+        return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    }
 
     @Override
-    public ReinforcementRequestDTO findById(Integer id) { return repository.findById(id).map(this::toDTO).orElseThrow(() -> new RuntimeException("ReinforcementRequest not found with id: " + id)); }
+    public ReinforcementRequestDTO findById(Integer id) {
+        return repository.findById(id).map(this::toDTO)
+                .orElseThrow(() -> new RuntimeException("ReinforcementRequest not found with id: " + id));
+    }
 
     @Override
     public ReinforcementRequestDTO save(ReinforcementRequestDTO dto) {
@@ -45,48 +50,111 @@ public class ReinforcementRequestServiceImpl implements IReinforcementRequestSer
 
     @Override
     public ReinforcementRequestDTO update(Integer id, ReinforcementRequestDTO dto) {
-        ReinforcementRequest e = repository.findById(id).orElseThrow(() -> new RuntimeException("ReinforcementRequest not found with id: " + id));
-        e.setRequestedDay(dto.getRequestedDay()); e.setReason(dto.getReason()); e.setFileUrl(dto.getFileUrl()); e.setCreatedAt(dto.getCreatedAt());
-        if (dto.getStudentId() != null) e.setStudentId(studentsRepository.findById(dto.getStudentId()).orElseThrow(() -> new RuntimeException("Student not found")));
-        if (dto.getTeacherId() != null) e.setTeacherId(teachingRepository.findById(dto.getTeacherId()).orElseThrow(() -> new RuntimeException("Teaching not found")));
-        if (dto.getTopicId() != null) e.setTopicId(syllabiRepository.findById(dto.getTopicId()).orElseThrow(() -> new RuntimeException("Syllabi not found")));
-        if (dto.getTimeSlotId() != null) e.setTimeSlotId(timeSlotRepository.findById(dto.getTimeSlotId()).orElseThrow(() -> new RuntimeException("TimeSlot not found")));
-        if (dto.getModalityId() != null) e.setModalityId(modalityRepository.findById(dto.getModalityId()).orElseThrow(() -> new RuntimeException("Modality not found")));
-        if (dto.getSessionTypeId() != null) e.setSessionTypeId(sessionTypesRepository.findById(dto.getSessionTypeId()).orElseThrow(() -> new RuntimeException("SessionTypes not found")));
-        if (dto.getRequestStatusId() != null) e.setRequestStatusId(requestStatusRepository.findById(dto.getRequestStatusId()).orElseThrow(() -> new RuntimeException("ReinforcementRequestStatus not found")));
-        if (dto.getPeriodId() != null) e.setPeriodId(periodRepository.findById(dto.getPeriodId()).orElseThrow(() -> new RuntimeException("Period not found")));
+        ReinforcementRequest e = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ReinforcementRequest not found with id: " + id));
+        e.setRequestedDay(dto.getRequestedDay());
+        e.setReason(dto.getReason());
+        e.setFileUrl(dto.getFileUrl());
+        e.setCreatedAt(dto.getCreatedAt());
+        if (dto.getStudentId() != null)
+            e.setStudentId(studentsRepository.findById(dto.getStudentId())
+                    .orElseThrow(() -> new RuntimeException("Student not found")));
+        if (dto.getTeacherId() != null)
+            e.setTeacherId(teachingRepository.findById(dto.getTeacherId())
+                    .orElseThrow(() -> new RuntimeException("Teaching not found")));
+        if (dto.getTopicId() != null)
+            e.setTopicId(syllabiRepository.findById(dto.getTopicId())
+                    .orElseThrow(() -> new RuntimeException("Syllabi not found")));
+        if (dto.getTimeSlotId() != null)
+            e.setTimeSlotId(timeSlotRepository.findById(dto.getTimeSlotId())
+                    .orElseThrow(() -> new RuntimeException("TimeSlot not found")));
+        if (dto.getModalityId() != null)
+            e.setModalityId(modalityRepository.findById(dto.getModalityId())
+                    .orElseThrow(() -> new RuntimeException("Modality not found")));
+        if (dto.getSessionTypeId() != null)
+            e.setSessionTypeId(sessionTypesRepository.findById(dto.getSessionTypeId())
+                    .orElseThrow(() -> new RuntimeException("SessionTypes not found")));
+        if (dto.getRequestStatusId() != null)
+            e.setRequestStatusId(requestStatusRepository.findById(dto.getRequestStatusId())
+                    .orElseThrow(() -> new RuntimeException("ReinforcementRequestStatus not found")));
+        if (dto.getPeriodId() != null)
+            e.setPeriodId(periodRepository.findById(dto.getPeriodId())
+                    .orElseThrow(() -> new RuntimeException("Period not found")));
         return toDTO(repository.save(e));
     }
 
     @Override
-    public void deleteById(Integer id) { repository.deleteById(id); }
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
+
+    @Override
+    public List<ReinforcementRequestDTO> findByStatusId(Integer statusId) {
+        return repository.findByRequestStatusId_IdReinforcementRequestStatus(statusId)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public ReinforcementRequestDTO updateStatus(Integer id, Integer statusId) {
+        ReinforcementRequest e = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Solicitud de refuerzo no encontrada con id: " + id));
+        e.setRequestStatusId(requestStatusRepository.findById(statusId)
+                .orElseThrow(() -> new RuntimeException("Estado no encontrado con id: " + statusId)));
+        return toDTO(repository.save(e));
+    }
 
     private ReinforcementRequestDTO toDTO(ReinforcementRequest e) {
         ReinforcementRequestDTO d = new ReinforcementRequestDTO();
         d.setReinforcementRequestId(e.getReinforcementRequestId());
-        d.setRequestedDay(e.getRequestedDay()); d.setReason(e.getReason()); d.setFileUrl(e.getFileUrl()); d.setCreatedAt(e.getCreatedAt());
+        d.setRequestedDay(e.getRequestedDay());
+        d.setReason(e.getReason());
+        d.setFileUrl(e.getFileUrl());
+        d.setCreatedAt(e.getCreatedAt());
         d.setStudentId(e.getStudentId() != null ? e.getStudentId().getStudentId() : null);
         d.setTeacherId(e.getTeacherId() != null ? e.getTeacherId().getTeachingId() : null);
         d.setTopicId(e.getTopicId() != null ? e.getTopicId().getSyllabiId() : null);
         d.setTimeSlotId(e.getTimeSlotId() != null ? e.getTimeSlotId().getTimeSlotId() : null);
         d.setModalityId(e.getModalityId() != null ? e.getModalityId().getIdModality() : null);
         d.setSessionTypeId(e.getSessionTypeId() != null ? e.getSessionTypeId().getSesionTypesId() : null);
-        d.setRequestStatusId(e.getRequestStatusId() != null ? e.getRequestStatusId().getIdReinforcementRequestStatus() : null);
+        d.setRequestStatusId(
+                e.getRequestStatusId() != null ? e.getRequestStatusId().getIdReinforcementRequestStatus() : null);
         d.setPeriodId(e.getPeriodId() != null ? e.getPeriodId().getPeriodId() : null);
         return d;
     }
 
     private ReinforcementRequest toEntity(ReinforcementRequestDTO dto) {
         ReinforcementRequest e = new ReinforcementRequest();
-        e.setRequestedDay(dto.getRequestedDay()); e.setReason(dto.getReason()); e.setFileUrl(dto.getFileUrl()); e.setCreatedAt(dto.getCreatedAt());
-        if (dto.getStudentId() != null) e.setStudentId(studentsRepository.findById(dto.getStudentId()).orElseThrow(() -> new RuntimeException("Student not found")));
-        if (dto.getTeacherId() != null) e.setTeacherId(teachingRepository.findById(dto.getTeacherId()).orElseThrow(() -> new RuntimeException("Teaching not found")));
-        if (dto.getTopicId() != null) e.setTopicId(syllabiRepository.findById(dto.getTopicId()).orElseThrow(() -> new RuntimeException("Syllabi not found")));
-        if (dto.getTimeSlotId() != null) e.setTimeSlotId(timeSlotRepository.findById(dto.getTimeSlotId()).orElseThrow(() -> new RuntimeException("TimeSlot not found")));
-        if (dto.getModalityId() != null) e.setModalityId(modalityRepository.findById(dto.getModalityId()).orElseThrow(() -> new RuntimeException("Modality not found")));
-        if (dto.getSessionTypeId() != null) e.setSessionTypeId(sessionTypesRepository.findById(dto.getSessionTypeId()).orElseThrow(() -> new RuntimeException("SessionTypes not found")));
-        if (dto.getRequestStatusId() != null) e.setRequestStatusId(requestStatusRepository.findById(dto.getRequestStatusId()).orElseThrow(() -> new RuntimeException("ReinforcementRequestStatus not found")));
-        if (dto.getPeriodId() != null) e.setPeriodId(periodRepository.findById(dto.getPeriodId()).orElseThrow(() -> new RuntimeException("Period not found")));
+        e.setRequestedDay(dto.getRequestedDay());
+        e.setReason(dto.getReason());
+        e.setFileUrl(dto.getFileUrl());
+        e.setCreatedAt(dto.getCreatedAt());
+        if (dto.getStudentId() != null)
+            e.setStudentId(studentsRepository.findById(dto.getStudentId())
+                    .orElseThrow(() -> new RuntimeException("Student not found")));
+        if (dto.getTeacherId() != null)
+            e.setTeacherId(teachingRepository.findById(dto.getTeacherId())
+                    .orElseThrow(() -> new RuntimeException("Teaching not found")));
+        if (dto.getTopicId() != null)
+            e.setTopicId(syllabiRepository.findById(dto.getTopicId())
+                    .orElseThrow(() -> new RuntimeException("Syllabi not found")));
+        if (dto.getTimeSlotId() != null)
+            e.setTimeSlotId(timeSlotRepository.findById(dto.getTimeSlotId())
+                    .orElseThrow(() -> new RuntimeException("TimeSlot not found")));
+        if (dto.getModalityId() != null)
+            e.setModalityId(modalityRepository.findById(dto.getModalityId())
+                    .orElseThrow(() -> new RuntimeException("Modality not found")));
+        if (dto.getSessionTypeId() != null)
+            e.setSessionTypeId(sessionTypesRepository.findById(dto.getSessionTypeId())
+                    .orElseThrow(() -> new RuntimeException("SessionTypes not found")));
+        if (dto.getRequestStatusId() != null)
+            e.setRequestStatusId(requestStatusRepository.findById(dto.getRequestStatusId())
+                    .orElseThrow(() -> new RuntimeException("ReinforcementRequestStatus not found")));
+        if (dto.getPeriodId() != null)
+            e.setPeriodId(periodRepository.findById(dto.getPeriodId())
+                    .orElseThrow(() -> new RuntimeException("Period not found")));
         return e;
     }
 }

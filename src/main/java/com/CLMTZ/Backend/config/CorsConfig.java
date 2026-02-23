@@ -22,7 +22,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         // Métodos HTTP permitidos
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         // Headers permitidos
         config.setAllowedHeaders(Arrays.asList("*"));
@@ -39,4 +39,3 @@ public class CorsConfig {
         return new CorsFilter(source);
     }
 }
-
