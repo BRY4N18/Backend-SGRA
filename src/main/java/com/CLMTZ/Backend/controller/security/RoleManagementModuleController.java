@@ -13,21 +13,5 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/security/role-management-modules")
 @RequiredArgsConstructor
 public class RoleManagementModuleController {
-
-    private final IRoleManagementModuleService service;
-
-    @GetMapping
-    public ResponseEntity<List<RoleManagementModuleRequestDTO>> findAll() { return ResponseEntity.ok(service.findAll()); }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<RoleManagementModuleRequestDTO> findById(@PathVariable("id") Integer id) { return ResponseEntity.ok(service.findById(id)); }
-
-    @PostMapping
-    public ResponseEntity<RoleManagementModuleRequestDTO> save(@RequestBody RoleManagementModuleRequestDTO dto) { return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED); }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<RoleManagementModuleRequestDTO> update(@PathVariable("id") Integer id, @RequestBody RoleManagementModuleRequestDTO dto) { return ResponseEntity.ok(service.update(id, dto)); }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) { service.deleteById(id); return ResponseEntity.noContent().build(); }
+    
 }
