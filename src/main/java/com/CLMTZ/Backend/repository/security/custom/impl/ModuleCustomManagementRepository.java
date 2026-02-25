@@ -56,11 +56,12 @@ public class ModuleCustomManagementRepository implements IModuleCustomManagement
 
     @Override
     @Transactional(readOnly = true)
-    public List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTable){
-        String query = "Select * from seguridad.fn_sl_datos_tablas_maestras(:p_esquematabla)";
+    public List<MasterDataListManagementResponseDTO> listDataMasterTables(String schemaTable, String filtro){
+        String query = "Select * from seguridad.fn_sl_datos_tablas_maestras(:p_esquematabla, :p_filtro)";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("p_esquematabla", schemaTable);
+                .addValue("p_esquematabla", schemaTable)
+                .addValue("p_filtro", filtro);
 
         return getJdbcTemplate().query(query, params, new BeanPropertyRowMapper<>(MasterDataListManagementResponseDTO.class));
     }

@@ -38,8 +38,7 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
         String query = "Select * from seguridad.fn_sl_groles(:p_filtro_texto, :p_estado)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("p_filtro_texto", filter != null ? filter : "")
-                .addValue("p_estado", state != null ? state : true);
-
+                .addValue("p_estado", state);
         return getJdbcTemplate().query(query, params, new BeanPropertyRowMapper<>(RoleListManagementResponseDTO.class));
     }
 
