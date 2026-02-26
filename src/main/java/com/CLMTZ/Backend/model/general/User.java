@@ -5,7 +5,9 @@ import java.util.List;
 import com.CLMTZ.Backend.model.academic.Coordination;
 import com.CLMTZ.Backend.model.academic.Students;
 import com.CLMTZ.Backend.model.academic.Teaching;
+import com.CLMTZ.Backend.model.reinforcement.WorkAreaManager;
 import com.CLMTZ.Backend.model.security.Access;
+import com.CLMTZ.Backend.model.security.EmailSettings;
 import com.CLMTZ.Backend.model.security.UserUserManagement;
 import com.CLMTZ.Backend.model.security.UsersRoles;
 
@@ -81,9 +83,15 @@ public class User {
     @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Coordination coordination;
 
+    @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private WorkAreaManager workAreaManager;
+
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<Preference> preferences;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
+    private List<EmailSettings> emailSettings;
 }

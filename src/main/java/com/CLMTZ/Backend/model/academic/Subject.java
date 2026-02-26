@@ -2,6 +2,8 @@ package com.CLMTZ.Backend.model.academic;
 
 import java.util.List;
 
+import com.CLMTZ.Backend.model.reinforcement.ReinforcementRequest;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,12 +35,12 @@ public class Subject {
     @OneToMany(mappedBy = "subjectId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<SubjectsCareers> subjectsCareers;
 
-    @OneToMany(mappedBy = "subjectId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Syllabi> syllabis;
-
     @OneToMany(mappedBy = "subjectId", fetch = FetchType.LAZY)
     private List<EnrollmentDetail> enrollmentDetails;
 
     @OneToMany(mappedBy = "subjectId", fetch = FetchType.LAZY)
     private List<Class> classes;
+
+    @OneToMany(mappedBy = "subjectId", fetch = FetchType.LAZY)
+    private List<ReinforcementRequest> reinforcementRequests;
 }

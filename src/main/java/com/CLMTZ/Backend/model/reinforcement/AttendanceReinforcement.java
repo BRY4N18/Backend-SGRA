@@ -1,7 +1,5 @@
 package com.CLMTZ.Backend.model.reinforcement;
 
-import com.CLMTZ.Backend.model.academic.Students;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,8 +24,8 @@ public class AttendanceReinforcement {
     private ReinforcementPerformed reinforcementPerformedId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idestudiante", nullable = false, foreignKey = @ForeignKey(name = "fk_asistencia_estudiante"))
-    private Students studentId;
+    @JoinColumn(name = "idparticipante", nullable = false, foreignKey = @ForeignKey(name = "fk_asistencia_participante"))
+    private Participants participants;
 
     @Column(name = "asistencia", nullable = false, columnDefinition = "boolean default false")
     private Boolean attendance = false;

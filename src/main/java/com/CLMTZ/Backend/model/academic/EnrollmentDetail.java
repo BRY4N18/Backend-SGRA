@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "tbdetallematricula", schema = "academico")
 public class EnrollmentDetail {
     @Id
-    @Column(name = "iddetalle")
+    @Column(name = "iddetallematricula")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Integer enrollmentDetailId;
@@ -26,7 +26,6 @@ public class EnrollmentDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idasignatura", foreignKey = @ForeignKey(name = "fk_detallematricula_asignaturas"))
     private Subject subjectId;
-
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idparalelo", foreignKey = @ForeignKey(name = "fk_detallematricula_paralelo"))

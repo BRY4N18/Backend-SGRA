@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "tbnotificacion", schema = "general")
+@Table(name = "tbnotificaciones", schema = "general")
 public class Notification {
     @Id
     @Column(name = "idnotificacion")

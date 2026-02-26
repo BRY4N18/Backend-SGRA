@@ -28,6 +28,6 @@ public class Access {
     @Column(name = "contrasena", nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    @Column(name = "cuenta_activa", nullable = false, columnDefinition = "boolean default true")
-    private Boolean state = true;
+    @Column(name = "estado", nullable = false, columnDefinition = "char(1) default 'A' check (estado in ('A', 'I', 'C'))")
+    private Character state = 'A';
 }

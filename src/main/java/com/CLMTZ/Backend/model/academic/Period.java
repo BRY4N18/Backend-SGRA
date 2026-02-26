@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.CLMTZ.Backend.model.reinforcement.ReinforcementRequest;
-import com.CLMTZ.Backend.model.reinforcement.TeacherAvailability;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,9 +43,6 @@ public class Period {
 
     @OneToMany(mappedBy = "periodId", fetch = FetchType.LAZY)
     private List<ClassSchedule> classSchedules;
-
-    @OneToMany(mappedBy = "periodId", fetch = FetchType.LAZY)
-    private List<TeacherAvailability> teacherAvailabilities;
 
     @OneToMany(mappedBy = "periodId", fetch = FetchType.LAZY)
     private List<ReinforcementRequest> reinforcementRequests;

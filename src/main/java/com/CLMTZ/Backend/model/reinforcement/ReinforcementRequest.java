@@ -6,7 +6,7 @@ import java.util.List;
 import com.CLMTZ.Backend.model.academic.Modality;
 import com.CLMTZ.Backend.model.academic.Period;
 import com.CLMTZ.Backend.model.academic.Students;
-import com.CLMTZ.Backend.model.academic.Syllabi;
+import com.CLMTZ.Backend.model.academic.Subject;
 import com.CLMTZ.Backend.model.academic.Teaching;
 import com.CLMTZ.Backend.model.academic.TimeSlot;
 
@@ -30,45 +30,31 @@ public class ReinforcementRequest {
     private Integer reinforcementRequestId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idestudiante", foreignKey = @ForeignKey(name = "fk_solicitud_estudiante"))
+    @JoinColumn(name = "idestudiante", foreignKey = @ForeignKey(name = "fk_solicitudrefuerzo_estudiante"))
     private Students studentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddocente", foreignKey = @ForeignKey(name = "fk_solicitud_docente"))
+    @JoinColumn(name = "iddocente", foreignKey = @ForeignKey(name = "fk_solicitudrefuerzo_docente"))
     private Teaching teacherId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idtemario", foreignKey = @ForeignKey(name = "fk_solicitud_temario"))
-    private Syllabi topicId;
+    @JoinColumn(name = "idasignatura", foreignKey = @ForeignKey(name = "fk_solicitudrefuerzo_asignatura"))
+    private Subject subjectId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfranjahoraria", foreignKey = @ForeignKey(name = "fk_solicitud_franja"))
-    private TimeSlot timeSlotId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idmodalidad", foreignKey = @ForeignKey(name = "fk_solicitud_modalidad"))
-    private Modality modalityId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idtiposesion", foreignKey = @ForeignKey(name = "fk_solicitud_tiposesion"))
+    @JoinColumn(name = "idtiposesion", foreignKey = @ForeignKey(name = "fk_solicitudrefuerzo_tiposesion"))
     private SessionTypes sessionTypeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idestadosolicitudrefuerzo", foreignKey = @ForeignKey(name = "fk_solicitud_estado"))
+    @JoinColumn(name = "idestadosolicitudrefuerzo", foreignKey = @ForeignKey(name = "fk_solicitudrefuerzo_estadosolicitudrefuerzo"))
     private ReinforcementRequestStatus requestStatusId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idperiodo", foreignKey = @ForeignKey(name = "fk_solicitud_periodo"))
+    @JoinColumn(name = "idperiodo", foreignKey = @ForeignKey(name = "fk_solicitudrefuerzo_periodo"))
     private Period periodId;
-
-    @Column(name = "diasolicitado", nullable = false, columnDefinition = "smallint")
-    private Short requestedDay;
 
     @Column(name = "motivo", length = 200, nullable = false)
     private String reason;
-
-    @Column(name = "urlarchivo", nullable = true, columnDefinition = "TEXT")
-    private String fileUrl;
 
     @Column(name = "fechahoracreacion", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
@@ -78,4 +64,7 @@ public class ReinforcementRequest {
 
     @OneToMany(mappedBy = "reinforcementRequestId", fetch = FetchType.LAZY)
     private List<Participants> participants;
+
+    @OneToMany(mappedBy = "reinforcementRequestId", fetch = FetchType.LAZY)
+    private List<ResourcesRequestsReinforcements> resourcesRequestsReinforcements;
 }
