@@ -1,5 +1,6 @@
 package com.CLMTZ.Backend.service.reinforcement.student.impl;
 
+import com.CLMTZ.Backend.config.UserContextHolder;
 import com.CLMTZ.Backend.dto.reinforcement.student.*;
 import com.CLMTZ.Backend.repository.reinforcement.student.StudentCatalogRepository;
 import com.CLMTZ.Backend.service.reinforcement.student.StudentCatalogService;
@@ -54,5 +55,11 @@ public class StudentCatalogServiceImpl implements StudentCatalogService {
     @Override
     public boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId) {
         return studentCatalogRepository.isTimeSlotAvailable(teacherId, dayOfWeek, periodId, timeSlotId);
+    }
+
+    @Override
+    public List<ClassmateItemDTO> getClassmatesBySubject(Integer subjectId) {
+        Integer userId = UserContextHolder.getContext().getUserId();
+        return studentCatalogRepository.listClassmatesBySubject(subjectId, userId);
     }
 }

@@ -33,4 +33,13 @@ public interface StudentCatalogRepository {
      * @return true si la franja está disponible, false en caso contrario
      */
     boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId);
+
+    /**
+     * Lista compañeros matriculados en la misma asignatura, excluyendo al usuario actual.
+     *
+     * @param subjectId ID de la asignatura
+     * @param currentUserId ID del usuario actual (para excluirlo de la lista)
+     * @return Lista de compañeros con studentId, nombre completo y email
+     */
+    List<ClassmateItemDTO> listClassmatesBySubject(Integer subjectId, Integer currentUserId);
 }

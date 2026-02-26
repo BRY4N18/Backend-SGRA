@@ -89,4 +89,17 @@ public class StudentRequestRepositoryImpl implements StudentRequestRepository {
 
         return requestId;
     }
+
+    @Override
+    public void addParticipants(Integer requestId, List<Integer> studentIds) {
+        String sql = "INSERT INTO reforzamiento.tbparticipantes (idsolicitudrefuerzo, idestudiante, participacion) " +
+                     "VALUES (:requestId, :studentId, false)";
+
+        for (Integer studentId : studentIds) {
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("requestId", requestId);
+            params.addValue("studentId", studentId);
+            getJdbcTemplate().update(sql, params);
+        }
+    }
 }

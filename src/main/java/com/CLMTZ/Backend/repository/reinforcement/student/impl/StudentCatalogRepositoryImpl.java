@@ -107,4 +107,32 @@ public class StudentCatalogRepositoryImpl implements StudentCatalogRepository {
         return availableSlots.stream()
                 .anyMatch(slot -> slot.getTimeSlotId().equals(timeSlotId));
     }
+
+    @Override
+    public List<ClassmateItemDTO> listClassmatesBySubject(Integer subjectId, Integer currentUserId) {
+        String sql = """
+            SELECT DISTINCT e.idestudiante AS student_id,
+                   CONCAT(u.nombres, ' ', u.apellidos) AS full_name,
+                   u.correo AS email
+            FROM academico.tbdetallematricula dm
+            JOIN academico.tbmatriculas m ON m.idmatricula = dm.idmatricula
+            JOIN academico.tbestudiantes e ON e.idestudiante = m.idestudiante
+            JOIN general.tbusuarios u ON u.idusuario = e.idusuario
+            WHERE dm.idasignatura = :subjectId
+              AND dm.estado = true
+              AND e.estado = true
+              AND u.idusuario != :currentUserId
+            ORDER BY full_name
+            """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("subjectId", subjectId);
+        params.addValue("currentUserId", currentUserId);
+
+        return getJdbcTemplate().query(sql, params, (rs, rowNum) -> new ClassmateItemDTO(
+                rs.getInt("student_id"),
+                rs.getString("full_name"),
+                rs.getString("email")
+        ));
+    }
 }

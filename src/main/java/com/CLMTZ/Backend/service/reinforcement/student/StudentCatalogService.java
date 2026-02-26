@@ -32,4 +32,12 @@ public interface StudentCatalogService {
      * @return true si está disponible, false en caso contrario
      */
     boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId);
+
+    /**
+     * Obtiene los compañeros matriculados en la misma asignatura.
+     *
+     * @param subjectId ID de la asignatura
+     * @return Lista de compañeros (excluyendo al usuario actual)
+     */
+    List<ClassmateItemDTO> getClassmatesBySubject(Integer subjectId);
 }

@@ -114,4 +114,25 @@ public class StudentCatalogController {
             return ResponseEntity.status(500).body(Map.of("message", "Error retrieving available time slots: " + e.getMessage()));
         }
     }
+
+    /**
+     * Endpoint para obtener compañeros matriculados en la misma asignatura.
+     * Excluye al estudiante actual (autenticado).
+     *
+     * @param subjectId ID de la asignatura
+     * @return Lista de compañeros [{studentId, fullName, email}]
+     */
+    @GetMapping("/subjects/{subjectId}/classmates")
+    public ResponseEntity<?> getClassmatesBySubject(@PathVariable("subjectId") Integer subjectId) {
+        try {
+            if (subjectId == null || subjectId <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Invalid subjectId parameter"));
+            }
+            List<ClassmateItemDTO> classmates = studentCatalogService.getClassmatesBySubject(subjectId);
+            return ResponseEntity.ok(classmates);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("message", "Error retrieving classmates: " + e.getMessage()));
+        }
+    }
 }

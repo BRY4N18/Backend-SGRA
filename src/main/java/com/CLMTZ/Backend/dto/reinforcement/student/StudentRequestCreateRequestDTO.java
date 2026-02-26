@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,4 +19,5 @@ public class StudentRequestCreateRequestDTO {
     private Short requestedDay;
     private String fileUrl;
     private Integer periodId;
+    private List<Integer> participantIds;  // IDs de compañeros para sesiones grupales
 }

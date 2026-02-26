@@ -33,6 +33,12 @@ public class StudentRequestServiceImpl implements StudentRequestService {
         validateTimeSlotAvailability(req);
 
         Integer requestId = studentRequestRepository.createRequest(userId, req);
+
+        // Si es sesión grupal, insertar participantes
+        if (req.getParticipantIds() != null && !req.getParticipantIds().isEmpty()) {
+            studentRequestRepository.addParticipants(requestId, req.getParticipantIds());
+        }
+
         return new StudentRequestCreateResponseDTO(requestId);
     }
 
