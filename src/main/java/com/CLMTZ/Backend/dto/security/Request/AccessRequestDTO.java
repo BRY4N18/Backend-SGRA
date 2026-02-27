@@ -11,6 +11,6 @@ public class AccessRequestDTO {
     private Integer accessId;
     private String username;
     private String password;
-    private Boolean state;
+    private Character state;
     private Integer userId;
 }

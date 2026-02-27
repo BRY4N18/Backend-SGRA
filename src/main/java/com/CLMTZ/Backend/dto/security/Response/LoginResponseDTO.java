@@ -16,4 +16,5 @@ public class LoginResponseDTO {
     private String email;
     private List<String> roles;
     private boolean serverSynced;
+    private Character accountState;
 }
