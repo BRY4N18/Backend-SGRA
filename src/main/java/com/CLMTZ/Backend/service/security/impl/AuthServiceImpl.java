@@ -54,10 +54,11 @@ public class AuthServiceImpl implements IAuthService {
 
         Access access = accessOpt.get();
 
-        // 2. Verificar que la cuenta esté activa
-        if (!Boolean.TRUE.equals(access.getState())) {
-            log.warn("Cuenta desactivada para usuario: {}", request.getUsername());
-            throw new RuntimeException("La cuenta está desactivada");
+        // 2. Verificar el estado de la cuenta ('A' = Activo, 'I' = Inactivo, 'C' = Cambio contraseña)
+        Character accountState = access.getState();
+        if (accountState == null || accountState.equals('I')) {
+            log.warn("Cuenta inactiva para usuario: {}", request.getUsername());
+            throw new RuntimeException("La cuenta está desactivada. Contacte al administrador.");
         }
 
         // 3. Verificar password con BCrypt
@@ -115,6 +116,7 @@ public class AuthServiceImpl implements IAuthService {
         ctx.setEmail(user.getEmail());
         ctx.setRoles(roles);
         ctx.setServerSynced(serverSynced);
+        ctx.setAccountState(accountState);
         ctx.setDbUser(dbUser);
         ctx.setDbPassword(dbPassword); // Solo en memoria de sesión
 
@@ -129,7 +131,8 @@ public class AuthServiceImpl implements IAuthService {
                 user.getLastName(),
                 user.getEmail(),
                 roles,
-                serverSynced
+                serverSynced,
+                accountState
         );
     }
 
@@ -146,7 +149,8 @@ public class AuthServiceImpl implements IAuthService {
                 ctx.getLastName(),
                 ctx.getEmail(),
                 ctx.getRoles(),
-                ctx.isServerSynced()
+                ctx.isServerSynced(),
+                ctx.getAccountState()
         );
     }
 

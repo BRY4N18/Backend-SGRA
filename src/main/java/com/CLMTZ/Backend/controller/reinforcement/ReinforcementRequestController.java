@@ -11,47 +11,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/reinforcement/reinforcement-requests")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class ReinforcementRequestController {
 
-    private final IReinforcementRequestService service;
-
-    @GetMapping
-    public ResponseEntity<List<ReinforcementRequestDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ReinforcementRequestDTO> findById(@PathVariable("id") Integer id) {
-        return ResponseEntity.ok(service.findById(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<ReinforcementRequestDTO> save(@RequestBody ReinforcementRequestDTO dto) {
-        return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ReinforcementRequestDTO> update(@PathVariable("id") Integer id,
-            @RequestBody ReinforcementRequestDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
-        service.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/by-status/{statusId}")
-    public ResponseEntity<List<ReinforcementRequestDTO>> findByStatus(@PathVariable("statusId") Integer statusId) {
-        return ResponseEntity.ok(service.findByStatusId(statusId));
-    }
-
-    @PatchMapping("/{id}/status/{statusId}")
-    public ResponseEntity<ReinforcementRequestDTO> updateStatus(
-            @PathVariable("id") Integer id,
-            @PathVariable("statusId") Integer statusId) {
-        return ResponseEntity.ok(service.updateStatus(id, statusId));
-    }
 }

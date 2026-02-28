@@ -3,6 +3,8 @@ package com.CLMTZ.Backend.model.academic;
 import java.util.List;
 
 import com.CLMTZ.Backend.model.general.Institution;
+import com.CLMTZ.Backend.model.reinforcement.WorkArea;
+import com.CLMTZ.Backend.model.reinforcement.WorkAreaManager;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,7 +32,7 @@ public class AcademicArea {
     @Column(name = "nombre",length = 200,nullable = false)
     private String nameArea;
 
-    @Column(name = "abreviatura",length = 10,nullable = false, columnDefinition="character(10)")
+    @Column(name = "abreviatura",length = 10,nullable = false, columnDefinition="char(10)")
     private String abbreviation;
 
     @Column(name = "ubicacion", length = 150,nullable = false)
@@ -41,4 +43,10 @@ public class AcademicArea {
 
     @OneToMany(mappedBy = "academicAreaId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Career> careers;
+
+    @OneToMany(mappedBy = "areaAcademicId", fetch = FetchType.LAZY)
+    private List<WorkArea> workAreas;
+
+    @OneToMany(mappedBy = "areaAcademicId", fetch = FetchType.LAZY)
+    private List<WorkAreaManager> workAreaManagers;
 }

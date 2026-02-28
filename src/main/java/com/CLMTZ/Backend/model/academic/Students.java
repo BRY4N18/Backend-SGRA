@@ -3,7 +3,6 @@ package com.CLMTZ.Backend.model.academic;
 import java.util.List;
 
 import com.CLMTZ.Backend.model.general.User;
-import com.CLMTZ.Backend.model.reinforcement.AttendanceReinforcement;
 import com.CLMTZ.Backend.model.reinforcement.Participants;
 import com.CLMTZ.Backend.model.reinforcement.ReinforcementRequest;
 
@@ -42,9 +41,6 @@ public class Students {
 
     @OneToMany(mappedBy = "studentId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ReinforcementRequest> reinforcementRequests;
-
-    @OneToMany(mappedBy = "studentId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<AttendanceReinforcement> attendanceReinforcements;
 
     @OneToMany(mappedBy = "studentId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Participants> participants;

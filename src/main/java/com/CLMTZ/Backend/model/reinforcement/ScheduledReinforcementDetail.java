@@ -20,11 +20,11 @@ public class ScheduledReinforcementDetail {
     private Integer scheduledReinforcementDetailId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idrefuerzoprogramado", foreignKey = @ForeignKey(name = "fk_detrefuerzo_programado"))
+    @JoinColumn(name = "idrefuerzoprogramado", foreignKey = @ForeignKey(name = "fk_detallerefuerzoprogramado_refuerzoprogramado"))
     private ScheduledReinforcement scheduledReinforcementId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsolicitudrefuerzo", foreignKey = @ForeignKey(name = "fk_detrefuerzo_solicitud"))
+    @JoinColumn(name = "idsolicitudrefuerzo", foreignKey = @ForeignKey(name = "fk_detallerefuerzoprogramado_solicitudrefuerzo"))
     private ReinforcementRequest reinforcementRequestId;
 
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")

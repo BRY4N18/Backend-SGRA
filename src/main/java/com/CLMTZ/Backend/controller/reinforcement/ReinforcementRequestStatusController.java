@@ -12,21 +12,5 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/reinforcement/reinforcement-request-statuses")
 @RequiredArgsConstructor
 public class ReinforcementRequestStatusController {
-
-    private final IReinforcementRequestStatusService service;
-
-    @GetMapping
-    public ResponseEntity<List<ReinforcementRequestStatusDTO>> findAll() { return ResponseEntity.ok(service.findAll()); }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ReinforcementRequestStatusDTO> findById(@PathVariable("id") Integer id) { return ResponseEntity.ok(service.findById(id)); }
-
-    @PostMapping
-    public ResponseEntity<ReinforcementRequestStatusDTO> save(@RequestBody ReinforcementRequestStatusDTO dto) { return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED); }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ReinforcementRequestStatusDTO> update(@PathVariable("id") Integer id, @RequestBody ReinforcementRequestStatusDTO dto) { return ResponseEntity.ok(service.update(id, dto)); }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) { service.deleteById(id); return ResponseEntity.noContent().build(); }
+    
 }

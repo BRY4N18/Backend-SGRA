@@ -37,6 +37,6 @@ public class RoleManagement {
     @OneToMany(mappedBy = "roleManagement", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserRoleManagement> userRoleManagements;
 
-    @OneToMany(mappedBy = "roleManagement", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<RoleManagementModule> roleManagementModules;
+    @OneToMany(mappedBy = "roleManagementId", fetch = FetchType.LAZY)
+    private List<RoleManagementRole> roleManagementRoles;
 }

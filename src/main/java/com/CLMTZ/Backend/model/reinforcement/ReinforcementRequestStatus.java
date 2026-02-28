@@ -19,9 +19,9 @@ public class ReinforcementRequestStatus {
     @Column(name = "idestadosolicitudrefuerzo", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
-    private Integer idReinforcementRequestStatus;
+    private Integer reinforcementRequestStatusId;
 
-    @Column(name = "nombreestado",length = 10,nullable = false, unique = true)
+    @Column(name = "nombreestado",length = 15,nullable = false, unique = true)
     private String nameState;
 
     @Column(name = "estado", nullable = false,columnDefinition = "boolean default true")

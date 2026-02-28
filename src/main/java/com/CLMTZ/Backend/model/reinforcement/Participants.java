@@ -1,5 +1,7 @@
 package com.CLMTZ.Backend.model.reinforcement;
 
+import java.util.List;
+
 import com.CLMTZ.Backend.model.academic.Students;
 
 import jakarta.persistence.*;
@@ -31,4 +33,7 @@ public class Participants {
 
     @Column(name = "participacion", nullable = false, columnDefinition = "boolean default false")
     private Boolean stake = false;
+
+    @OneToMany(mappedBy = "participants", fetch = FetchType.LAZY)
+    private List<AttendanceReinforcement> attendanceReinforcements;
 }

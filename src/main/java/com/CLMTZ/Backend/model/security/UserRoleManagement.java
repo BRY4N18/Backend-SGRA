@@ -17,11 +17,11 @@ public class UserRoleManagement {
     private Integer userRoleGId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idgusuario", foreignKey = @ForeignKey(name = "fk_gestionusuarirol_gestionusuario"))
+    @JoinColumn(name = "idgusuario", foreignKey = @ForeignKey(name = "fk_gestionusuariorol_gestionusuario"))
     private UserManagement userManagement;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idgrol", foreignKey = @ForeignKey(name = "fk_gestionusuarirol_gestionrol"))
+    @JoinColumn(name = "idgrol", foreignKey = @ForeignKey(name = "fk_gestionusuariorol_gestionrol"))
     private RoleManagement roleManagement;
 
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")

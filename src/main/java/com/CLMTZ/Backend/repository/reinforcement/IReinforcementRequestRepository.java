@@ -8,5 +8,5 @@ import com.CLMTZ.Backend.model.reinforcement.ReinforcementRequest;
 
 public interface IReinforcementRequestRepository extends JpaRepository<ReinforcementRequest, Integer> {
 
-    List<ReinforcementRequest> findByRequestStatusId_IdReinforcementRequestStatus(Integer statusId);
+    List<ReinforcementRequest> findByRequestStatusId_ReinforcementRequestStatusId(Integer statusId);
 }

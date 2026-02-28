@@ -26,18 +26,18 @@ public class ScheduledReinforcement {
     private Integer scheduledReinforcementId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idtiposesion", foreignKey = @ForeignKey(name = "fk_refuerzoprog_tiposesion"))
+    @JoinColumn(name = "idtiposesion", foreignKey = @ForeignKey(name = "fk_refuerzoprogramado_tiposesion"))
     private SessionTypes sessionTypeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idmodalidad", foreignKey = @ForeignKey(name = "fk_refuerzoprog_modalidad"))
+    @JoinColumn(name = "idmodalidad", foreignKey = @ForeignKey(name = "fk_refuerzoprogramado_modalidad"))
     private Modality modalityId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfranjahorario", foreignKey = @ForeignKey(name = "fk_refuerzoprog_franja"))
+    @JoinColumn(name = "idfranjahoraria", foreignKey = @ForeignKey(name = "fk_refuerzoprogramado_franjahoraria"))
     private TimeSlot timeSlotId;
 
-    @Column(name = "tiempoestimado", nullable = false, columnDefinition = "time")
+    @Column(name = "duracionestimado", nullable = false, columnDefinition = "time")
     private LocalTime estimatedTime;
     
     @Column(name = "motivo", length = 200)
@@ -46,8 +46,9 @@ public class ScheduledReinforcement {
     @Column (name = "fechacreacion",nullable = false, columnDefinition = "timestamp")
     private LocalDateTime newSchedule;
 
-    @Column(name = "estado", nullable = false, columnDefinition = "char(2) default 'P' check(estado in ('P', 'RP', 'R'))")
-    private String state;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idestadorefuerzoprogramado", foreignKey = @ForeignKey(name = "fk_refuerzoprogramado_estadorefuerzoprogramado"))
+    private ScheduledReinforcementStatus scheduledReinforcementStatus;
 
     @OneToMany(mappedBy = "scheduledReinforcementId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScheduledReinforcementDetail> scheduledReinforcementDetails;
@@ -57,4 +58,7 @@ public class ScheduledReinforcement {
 
     @OneToMany(mappedBy = "scheduledReinforcementId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OnSiteReinforcement> onSiteReinforcements;
+
+    @OneToMany(mappedBy = "scheduledReinforcement", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduledReinforcementResources> scheduledReinforcementResources;
 }

@@ -30,14 +30,8 @@ public class Modality {
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")
     private Boolean state = true;
 
-    @OneToMany(mappedBy = "modalityId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Career> careers;
-
-    @OneToMany(mappedBy = "modalityId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Teaching> teachings;
-
     @OneToMany(mappedBy = "modalityId", fetch = FetchType.LAZY)
-    private List<ReinforcementRequest> reinforcementRequests;
+    private List<Career> careers;
 
     @OneToMany(mappedBy = "modalityId", fetch = FetchType.LAZY)
     private List<ScheduledReinforcement> scheduledReinforcements;
