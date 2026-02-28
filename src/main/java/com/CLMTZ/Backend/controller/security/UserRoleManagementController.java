@@ -16,5 +16,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserRoleManagementController {
     
-    
+    private final IRoleManagementService roleManagementSer;
+
+    @GetMapping("/kpi-dashboard-management")
+    public ResponseEntity<KpiDashboardManagementResponseDTO> kpiDashboardManagement(){
+        KpiDashboardManagementResponseDTO kpidashboard = roleManagementSer.kpisDashboadrManagement();
+        return ResponseEntity.ok(kpidashboard);
+    }    
 }
