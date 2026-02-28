@@ -3,7 +3,8 @@ package com.CLMTZ.Backend.service.security.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import com.CLMTZ.Backend.dto.security.RoleManagementRoleDTO;
+
+import com.CLMTZ.Backend.dto.security.Request.RoleManagementRoleRequestDTO;
 import com.CLMTZ.Backend.model.security.Role;
 import com.CLMTZ.Backend.model.security.RoleManagement;
 import com.CLMTZ.Backend.model.security.RoleManagementRole;
@@ -22,18 +23,18 @@ public class RoleManagementRoleServiceImpl implements IRoleManagementRoleService
     private final IRoleRepository roleRepository;
 
     @Override
-    public List<RoleManagementRoleDTO> findAll() {
+    public List<RoleManagementRoleRequestDTO> findAll() {
         return repository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
-    public RoleManagementRoleDTO findById(Integer id) {
+    public RoleManagementRoleRequestDTO findById(Integer id) {
         return repository.findById(id).map(this::toDTO)
                 .orElseThrow(() -> new RuntimeException("RoleManagementRole not found with id: " + id));
     }
 
     @Override
-    public RoleManagementRoleDTO save(RoleManagementRoleDTO dto) {
+    public RoleManagementRoleRequestDTO save(RoleManagementRoleRequestDTO dto) {
         RoleManagementRole e = new RoleManagementRole();
         if (dto.getRoleManagementId() != null) {
             RoleManagement rm = roleManagementRepository.findById(dto.getRoleManagementId())
@@ -50,7 +51,7 @@ public class RoleManagementRoleServiceImpl implements IRoleManagementRoleService
     }
 
     @Override
-    public RoleManagementRoleDTO update(Integer id, RoleManagementRoleDTO dto) {
+    public RoleManagementRoleRequestDTO update(Integer id, RoleManagementRoleRequestDTO dto) {
         RoleManagementRole e = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("RoleManagementRole not found with id: " + id));
         if (dto.getRoleManagementId() != null) {
@@ -72,8 +73,8 @@ public class RoleManagementRoleServiceImpl implements IRoleManagementRoleService
         repository.deleteById(id);
     }
 
-    private RoleManagementRoleDTO toDTO(RoleManagementRole e) {
-        RoleManagementRoleDTO d = new RoleManagementRoleDTO();
+    private RoleManagementRoleRequestDTO toDTO(RoleManagementRole e) {
+        RoleManagementRoleRequestDTO d = new RoleManagementRoleRequestDTO();
         d.setRoleManagementRoleId(e.getRoleManagementRoleId());
         d.setRoleManagementId(e.getRoleManagementId() != null ? e.getRoleManagementId().getRoleGId() : null);
         d.setRoleId(e.getRoleId() != null ? e.getRoleId().getRoleId() : null);

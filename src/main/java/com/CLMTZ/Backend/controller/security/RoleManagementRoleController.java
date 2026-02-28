@@ -4,7 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.CLMTZ.Backend.dto.security.RoleManagementRoleDTO;
+
+import com.CLMTZ.Backend.dto.security.Request.RoleManagementRoleRequestDTO;
 import com.CLMTZ.Backend.service.security.IRoleManagementRoleService;
 import lombok.RequiredArgsConstructor;
 
@@ -16,22 +17,22 @@ public class RoleManagementRoleController {
     private final IRoleManagementRoleService service;
 
     @GetMapping
-    public ResponseEntity<List<RoleManagementRoleDTO>> findAll() {
+    public ResponseEntity<List<RoleManagementRoleRequestDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RoleManagementRoleDTO> findById(@PathVariable("id") Integer id) {
+    public ResponseEntity<RoleManagementRoleRequestDTO> findById(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<RoleManagementRoleDTO> save(@RequestBody RoleManagementRoleDTO dto) {
+    public ResponseEntity<RoleManagementRoleRequestDTO> save(@RequestBody RoleManagementRoleRequestDTO dto) {
         return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RoleManagementRoleDTO> update(@PathVariable("id") Integer id, @RequestBody RoleManagementRoleDTO dto) {
+    public ResponseEntity<RoleManagementRoleRequestDTO> update(@PathVariable("id") Integer id, @RequestBody RoleManagementRoleRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

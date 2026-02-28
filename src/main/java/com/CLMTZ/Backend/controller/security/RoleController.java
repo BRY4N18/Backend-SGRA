@@ -17,5 +17,12 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/security/roles")
 @RequiredArgsConstructor
 public class RoleController {
-    
+
+    private final IRoleService roleSer;
+
+    @GetMapping("/list-roles-aplication")
+    public ResponseEntity<List<RoleRequestDTO>> listRolesAplicationC(){
+        List<RoleRequestDTO> requestListRoles = roleSer.listRoleNames();
+        return ResponseEntity.ok(requestListRoles);
+    }
 }
