@@ -4,8 +4,9 @@ import lombok.Data;
 
 @Data
 public class EnrollmentDetailLoadDTO {
-    private String cedulaEstudiante;  // Col 3: IDENTIFICACIÓN
-    private String nombreAsignatura;  // Del encabezado de columna (fila 6 del Excel)
-    private String carreraTexto;      // Del encabezado del archivo (fila 3 del Excel)
-    // Periodo: se obtiene del periodo activo en BD (no viene en el Excel)
+    private String identificador;  // Col 1: cédula / pasaporte / código postal
+    private String sexo;            // Col 2: sexo (M / F / ...)
+    private String asignatura;      // Col 3: nombre de la asignatura
+    private Integer semestre;       // Col 4: nivel / semestre
+    private String paralelo;        // Col 5: paralelo
 }

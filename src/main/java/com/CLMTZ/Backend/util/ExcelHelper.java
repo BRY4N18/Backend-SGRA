@@ -154,39 +154,44 @@ public class ExcelHelper {
     }
 
     // =====================================================================
-    // MATRICULA.xlsx
-    // Formato complejo (reporte de cumplimiento de malla):
-    //   Fila 0: Nombre institución
-    //   Fila 1: Nombre periodo (ej. "REGULAR 2025-2026 SPA")
-    //   Fila 2: Nombre facultad
-    //   Fila 3: Nombre carrera (ej. "SOFTWARE (REDISEÑO) (MARZO 2018 VIGENTE)...")
-    //   Fila 4: Título del reporte
-    //   Fila 5: Vacía
-    //   Fila 6: Nombres de asignaturas en columnas 9+
-    //   Fila 7: Cabeceras (NIVEL_MAT, NIVEL_EST, NIVEL_COM, IDENTIFICACIÓN, APELLIDOS, NOMBRES, SEXO, EMAIL, CELULAR, ...)
-    //   Fila 8+: Datos de estudiantes
-    //     Col 3: Cédula (IDENTIFICACIÓN)
-    //     Col 9+: Estado de matrícula por asignatura (M = Matriculado)
+    // MATRICULA.xlsx  (formato de reporte de cumplimiento de malla UTEQ)
+    //   Fila 0-5: Encabezados institucionales (institución, periodo, facultad, carrera, título)
+    //   Fila 6:   Nombres de asignaturas en columnas 9+
+    //   Fila 7:   Cabeceras de columnas:
+    //             Col 0: NIVEL_MAT   Col 1: NIVEL_EST   Col 2: NIVEL_COM
+    //             Col 3: IDENTIFICACIÓN   Col 4: APELLIDOS   Col 5: NOMBRES
+    //             Col 6: SEXO   Col 7: EMAIL   Col 8: PARALELO (I8)   Col 9+: asignaturas
+    //   Fila 8+:  Datos de estudiantes
+    //             "M" en col 9+ indica que el estudiante está matriculado en esa asignatura
     //
-    // El periodo NO viene en el archivo; se obtiene del periodo activo en BD.
-    // Genera un EnrollmentDetailLoadDTO por cada asignatura donde el estudiante tiene "M".
+    // Por cada celda "M" se genera un EnrollmentDetailLoadDTO.
+    // El periodo activo lo resuelve el SP internamente (fn_sl_id_periodo_activo).
     // =====================================================================
     public static List<EnrollmentDetailLoadDTO> excelToEnrollmentDetails(InputStream is) {
         try (Workbook workbook = WorkbookFactory.create(is)) {
             Sheet sheet = workbook.getSheetAt(0);
             List<EnrollmentDetailLoadDTO> detalles = new ArrayList<>();
 
-            // Leer carrera del encabezado (fila 3, col 0)
-            Row filaCarrera = sheet.getRow(3);
-            String carreraTexto = (filaCarrera != null) ? getCellValue(filaCarrera, 0).trim() : "";
+            // El paralelo está en la celda I8 del Excel = fila índice 7, columna índice 8 (POI).
+            // La celda puede contener solo la letra ("B") o un texto como "PARALELO: B".
+            String paraleloGlobal = "A";
+            Row filaParalelo = sheet.getRow(7);
+            if (filaParalelo != null) {
+                String rawParalelo = getCellValue(filaParalelo, 8).trim().toUpperCase();
+                if (!rawParalelo.isEmpty()) {
+                    // Si tiene "PARALELO" + letra, extraer solo la letra
+                    String sinPrefijo = rawParalelo.replaceAll(".*PARALELO[:\\s]*", "").trim();
+                    paraleloGlobal = sinPrefijo.isEmpty()
+                            ? String.valueOf(rawParalelo.charAt(rawParalelo.length() - 1))
+                            : String.valueOf(sinPrefijo.charAt(0));
+                }
+            }
 
             // Leer nombres de asignaturas de fila 6 (índice 6), columnas 9 en adelante
             Row filaAsignaturas = sheet.getRow(6);
             if (filaAsignaturas == null) {
-                throw new RuntimeException("El archivo no tiene el formato esperado (falta fila de asignaturas).");
+                throw new RuntimeException("El archivo no tiene el formato esperado (falta fila de asignaturas en fila 7).");
             }
-
-            // Mapa: columna -> nombre asignatura
             Map<Integer, String> asignaturasPorColumna = new LinkedHashMap<>();
             for (int col = 9; col <= filaAsignaturas.getLastCellNum(); col++) {
                 String nombreAsig = getCellValue(filaAsignaturas, col).trim();
@@ -194,26 +199,42 @@ public class ExcelHelper {
                 asignaturasPorColumna.put(col, nombreAsig);
             }
 
-            // Datos de estudiantes: fila 8 (índice 8) en adelante
+            // Datos de estudiantes: fila 8 (índice 8) en adelante (fila 7 = cabeceras)
             for (int i = 8; i < sheet.getPhysicalNumberOfRows(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null || isRowEmpty(row)) continue;
 
-                String cedula = getCellValue(row, 3).trim();
-                if (cedula.isEmpty()) continue;
+                String identificador = getCellValue(row, 3).trim(); // Col 3: IDENTIFICACIÓN
+                if (identificador.isEmpty()) continue;
 
-                // Para cada asignatura, si el estado es "M" crear un detalle de matrícula
+                // Col 6: SEXO — normalizar a primera letra para evitar errores de longitud en BD
+                // ("MASCULINO"→"M", "FEMENINO"→"F", "H"→"H", etc.)
+                String sexoRaw  = getCellValue(row, 6).trim().toUpperCase();
+                String sexo     = sexoRaw.isEmpty() ? "" : sexoRaw.substring(0, 1);
+                String nivelEst = getCellValue(row, 1).trim(); // Col 1: NIVEL_EST (ej. "1ER NIVEL")
+                // El paralelo se lee de los encabezados del archivo (paraleloGlobal).
+                // Col 7 es EMAIL, no paralelo.
+                String paralelo = paraleloGlobal;
+
+                // Extraer el número del nivel (ej. "1ER NIVEL" → 1, "2DO NIVEL" → 2)
+                Integer semestre = 1;
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(nivelEst);
+                if (m.find()) {
+                    try { semestre = Integer.parseInt(m.group()); } catch (NumberFormatException ignored) {}
+                }
+
+                // Por cada asignatura marcada con "M", crear un detalle
                 for (Map.Entry<Integer, String> entry : asignaturasPorColumna.entrySet()) {
-                    int col = entry.getKey();
-                    String estado = getCellValue(row, col).trim().toUpperCase();
+                    String estado = getCellValue(row, entry.getKey()).trim().toUpperCase();
+                    if (!"M".equals(estado)) continue;
 
-                    if ("M".equals(estado)) {
-                        EnrollmentDetailLoadDTO detalle = new EnrollmentDetailLoadDTO();
-                        detalle.setCedulaEstudiante(cedula);
-                        detalle.setNombreAsignatura(entry.getValue());
-                        detalle.setCarreraTexto(carreraTexto);
-                        detalles.add(detalle);
-                    }
+                    EnrollmentDetailLoadDTO detalle = new EnrollmentDetailLoadDTO();
+                    detalle.setIdentificador(identificador);
+                    detalle.setSexo(sexo);
+                    detalle.setAsignatura(entry.getValue());
+                    detalle.setSemestre(semestre);
+                    detalle.setParalelo(paralelo); 
+                    detalles.add(detalle);
                 }
             }
             return detalles;

@@ -2,10 +2,10 @@ package com.CLMTZ.Backend.service.academic.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.dto.academic.EnrollmentDetailDTO;
 import com.CLMTZ.Backend.dto.academic.EnrollmentDetailLoadDTO;
@@ -13,6 +13,10 @@ import com.CLMTZ.Backend.model.academic.EnrollmentDetail;
 import com.CLMTZ.Backend.repository.academic.*;
 import com.CLMTZ.Backend.service.academic.IEnrollmentDetailService;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.StoredProcedureQuery;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,7 +27,11 @@ public class EnrollmentDetailServiceImpl implements IEnrollmentDetailService {
     private final IRegistrationsRepository registrationsRepository;
     private final ISubjectRepository subjectRepository;
     private final IParallelRepository parallelRepository;
-    private final IDataLoadRepository dataLoadRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    // --- CRUD ---
 
     @Override
     public List<EnrollmentDetailDTO> findAll() {
@@ -57,6 +65,74 @@ public class EnrollmentDetailServiceImpl implements IEnrollmentDetailService {
         repository.deleteById(id);
     }
 
+    // --- CARGA MASIVA ---
+
+    @Override
+    @Transactional
+    public List<String> uploadEnrollmentDetails(List<EnrollmentDetailLoadDTO> registrationDTOs) {
+        List<String> report = new ArrayList<>();
+
+        if (registrationDTOs == null || registrationDTOs.isEmpty()) {
+            report.add("ADVERTENCIA: No se encontraron registros de matrícula en el archivo. Verifique el formato del Excel.");
+            return report;
+        }
+
+        for (EnrollmentDetailLoadDTO dto : registrationDTOs) {
+            try {
+                System.out.println("Procesando matrícula: " + dto.getIdentificador() + " - " + dto.getAsignatura());
+
+                String resultadoSP = ejecutarCargaDetalleMatriculaSP(
+                        dto.getIdentificador(), dto.getAsignatura(),
+                        dto.getSemestre(), dto.getParalelo(), dto.getSexo());
+
+                if (resultadoSP.startsWith("OK:")) {
+                    String mensajeSP = resultadoSP.substring(3).trim();
+                    report.add("Asignatura: " + dto.getAsignatura() + " → ID " + dto.getIdentificador() + ": " + mensajeSP);
+                } else {
+                    report.add("ID " + dto.getIdentificador() + " - " + dto.getAsignatura() + ": " + resultadoSP);
+                }
+
+            } catch (Exception e) {
+                report.add("ID " + dto.getIdentificador() + " - " + dto.getAsignatura() + ": ERROR (" + e.getMessage() + ")");
+                e.printStackTrace();
+            }
+        }
+
+        long exitosos = report.stream().filter(r -> r.startsWith("Asignatura:")).count();
+        long errores = report.size() - exitosos;
+        report.add(0, "RESUMEN: " + registrationDTOs.size() + " registros procesados → " + exitosos + " exitosos, " + errores + " con errores/advertencias.");
+
+        return report;
+    }
+
+    // --- STORED PROCEDURE ---
+
+    private String ejecutarCargaDetalleMatriculaSP(String identificador, String asignatura,
+            Integer semestre, String paralelo, String sexo) {
+
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("academico.sp_in_carga_detalle_matricula");
+        query.registerStoredProcedureParameter("p_identificador_est", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_nombre_asignatura", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_semestre", Integer.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_paralelo", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_sexo", String.class, ParameterMode.IN);
+        query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
+        query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
+
+        query.setParameter("p_identificador_est", identificador);
+        query.setParameter("p_nombre_asignatura", asignatura);
+        query.setParameter("p_semestre", semestre);
+        query.setParameter("p_paralelo", paralelo);
+        query.setParameter("p_sexo", sexo);
+        query.execute();
+
+        String mensaje = (String) query.getOutputParameterValue("p_mensaje");
+        Boolean exito = (Boolean) query.getOutputParameterValue("p_exito");
+        return Boolean.TRUE.equals(exito) ? "OK: " + mensaje : "FALLÓ SP: " + mensaje;
+    }
+
+    // --- CONVERSORES DTO ---
+
     private EnrollmentDetailDTO toDTO(EnrollmentDetail entity) {
         EnrollmentDetailDTO dto = new EnrollmentDetailDTO();
         dto.setEnrollmentDetailId(entity.getEnrollmentDetailId());
@@ -74,69 +150,5 @@ public class EnrollmentDetailServiceImpl implements IEnrollmentDetailService {
         if (dto.getSubjectId() != null) entity.setSubjectId(subjectRepository.findById(dto.getSubjectId()).orElseThrow(() -> new RuntimeException("Subject not found")));
         if (dto.getParallelId() != null) entity.setParallelId(parallelRepository.findById(dto.getParallelId()).orElseThrow(() -> new RuntimeException("Parallel not found")));
         return entity;
-    }
-
-    @Override
-    public List<String> uploadEnrollmentDetails(List<EnrollmentDetailLoadDTO> registrationDTOs) {
-        List<String> report = new ArrayList<>();
-
-        if (registrationDTOs == null || registrationDTOs.isEmpty()) {
-            report.add("ADVERTENCIA: No se encontraron registros de matrícula en el archivo. Verifique el formato del Excel.");
-            return report;
-        }
-
-        // Periodo activo (gestionado por el admin, no viene del Excel)
-        Integer idPeriodo = dataLoadRepository.obtenerIdPeriodoActivo();
-        if (idPeriodo == null) {
-            report.add("ERROR GENERAL: No hay un periodo activo configurado. Contacte al administrador.");
-            return report;
-        }
-
-        for (EnrollmentDetailLoadDTO dto : registrationDTOs) {
-            String ref = "Estudiante '" + dto.getCedulaEstudiante() + "' - Asig. '" + dto.getNombreAsignatura() + "'";
-            try {
-                // 1. Verificar que el estudiante tiene matrícula en el periodo activo
-                //    (Requiere que el paso 1 - upload-students - ya se haya ejecutado)
-                Integer idMatricula = dataLoadRepository.obtenerIdMatricula(dto.getCedulaEstudiante(), idPeriodo);
-                if (idMatricula == null) {
-                    report.add(ref + ": ERROR (Estudiante sin matrícula en el periodo activo. Cargue primero Estudiantes)");
-                    continue;
-                }
-
-                // 2. Obtener ID de carrera a partir del texto del encabezado del Excel
-                Map<String, Object> ids = dataLoadRepository.obtenerIdsPorCarrera(dto.getCarreraTexto());
-                if (ids == null || ids.get("id_carrera_encontrado") == null) {
-                    report.add(ref + ": ERROR (Carrera no encontrada en BD: '" + dto.getCarreraTexto() + "')");
-                    continue;
-                }
-                Integer idCarrera = ((Number) ids.get("id_carrera_encontrado")).intValue();
-
-                // 3. Obtener ID de asignatura por nombre y carrera
-                Integer idAsignatura = dataLoadRepository.obtenerIdAsignatura(dto.getNombreAsignatura(), idCarrera);
-                if (idAsignatura == null) {
-                    report.add(ref + ": ERROR (Asignatura '" + dto.getNombreAsignatura() + "' no encontrada en esa carrera)");
-                    continue;
-                }
-
-                // 4. Crear el detalle de matrícula con las relaciones correctas
-                //    paralelo: no viene en Matricula.xlsx → null
-                EnrollmentDetail detail = new EnrollmentDetail();
-                detail.setRegistrationId(registrationsRepository.getReferenceById(idMatricula));
-                detail.setSubjectId(subjectRepository.getReferenceById(idAsignatura));
-                detail.setActive(true);
-                repository.save(detail);
-
-                report.add(ref + ": OK");
-
-            } catch (Exception e) {
-                report.add(ref + ": ERROR (" + e.getMessage() + ")");
-            }
-        }
-
-        long exitosos = report.stream().filter(r -> r.endsWith(": OK")).count();
-        long errores = report.stream().filter(r -> r.contains(": ERROR")).count();
-        report.add(0, "RESUMEN: " + registrationDTOs.size() + " registros → " + exitosos + " exitosos, " + errores + " con errores.");
-
-        return report;
     }
 }
