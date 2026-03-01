@@ -9,8 +9,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.config.DynamicDataSourceService;
+import com.CLMTZ.Backend.dto.security.Request.RoleManagementRequestDTO;
+import com.CLMTZ.Backend.dto.security.Response.FlatRoleMappingDTO;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
+import com.CLMTZ.Backend.model.security.RoleManagement;
+import com.CLMTZ.Backend.repository.security.IRoleManagementRepository;
+import com.CLMTZ.Backend.repository.security.IRoleRepository;
 import com.CLMTZ.Backend.repository.security.custom.IRoleManagementCustomRepository;
 
 import jakarta.persistence.EntityManager;
@@ -25,6 +30,9 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private final IRoleRepository roleRepo;
+    private final IRoleManagementRepository roleManagementRepo;
 
     private final DynamicDataSourceService dynamicDataSourceService;
 
@@ -88,5 +96,13 @@ public class RoleManagementCustomRepositoryImpl implements IRoleManagementCustom
         Boolean success = (Boolean) query.getOutputParameterValue("p_exito");
 
         return new SpResponseDTO(message, success);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FlatRoleMappingDTO> listRoleManagementRole() {
+        String query = "select * from seguridad.fn_sl_rolservidor_rolapp()";
+
+        return getJdbcTemplate().query(query, new BeanPropertyRowMapper<>(FlatRoleMappingDTO.class));
     }
 }
