@@ -90,7 +90,12 @@ public class CoordinationServiceImpl implements ICoordinationService {
                         fila.getIdentificacion(), fila.getNombres(), fila.getApellidos(),
                         fila.getCorreo(), fila.getTelefono());
 
-                resultados.add("ID " + fila.getIdentificacion() + ": " + resultadoSP);
+                String nombreCompleto = (fila.getNombres() + " " + fila.getApellidos()).trim();
+                if ("OK".equals(resultadoSP)) {
+                    resultados.add("Estudiante: " + nombreCompleto + " se ha subido correctamente.");
+                } else {
+                    resultados.add("Estudiante: " + nombreCompleto + " (ID: " + fila.getIdentificacion() + "): " + resultadoSP);
+                }
 
             } catch (Exception e) {
                 resultados.add("ID " + fila.getIdentificacion() + ": ERROR (" + e.getMessage() + ")");
@@ -98,7 +103,7 @@ public class CoordinationServiceImpl implements ICoordinationService {
             }
         }
 
-        long exitosos = resultados.stream().filter(r -> r.endsWith(": OK")).count();
+        long exitosos = resultados.stream().filter(r -> r.contains("se ha subido correctamente")).count();
         long errores = resultados.size() - exitosos;
         resultados.add(0, "RESUMEN: " + dtos.size() + " registros procesados → " + exitosos + " exitosos, " + errores + " con errores/advertencias.");
 
