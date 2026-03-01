@@ -4,14 +4,13 @@ import lombok.Data;
 
 @Data
 public class StudentLoadDTO {
-    private String cedula;
+    private String identificacion; // cédula, pasaporte o código postal
     private String nombres;
     private String apellidos;
     private String correo;
     private String telefono;
-    private String genero; // "MUJER" o "HOMBRE" -> se convierte a ID en el servicio
 
-    // Datos académicos (Texto del Excel o parámetro del endpoint)
+    // Datos académicos (parámetros del endpoint, no del Excel)
     private String carreraTexto;
     private String modalidadTexto;
 }

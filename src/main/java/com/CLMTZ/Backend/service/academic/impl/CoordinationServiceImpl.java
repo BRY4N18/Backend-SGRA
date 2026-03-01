@@ -82,50 +82,18 @@ public class CoordinationServiceImpl implements ICoordinationService {
             return resultados;
         }
 
-        // Periodo activo obtenido una sola vez (lo gestiona el admin, no viene del Excel)
-        Integer idPeriodo = dataLoadRepository.obtenerIdPeriodoActivo();
-        if (idPeriodo == null) {
-            resultados.add("ERROR GENERAL: No hay un periodo activo configurado en el sistema.");
-            return resultados;
-        }
-
         for (StudentLoadDTO fila : dtos) {
             try {
-                // 1. Obtener IDs de carrera y modalidad (vienen del endpoint como parámetros)
-                Map<String, Object> ids = dataLoadRepository.obtenerIdsPorTexto(
-                        fila.getCarreraTexto(), fila.getModalidadTexto());
+                System.out.println("Procesando Identificación: " + fila.getIdentificacion());
 
-                System.out.println("Procesando Cédula: " + fila.getCedula() + " | IDs: " + ids);
-
-                if (ids == null || ids.get("id_carrera_encontrado") == null) {
-                    resultados.add("Cédula " + fila.getCedula() + ": ERROR (Carrera no encontrada en BD: '" + fila.getCarreraTexto() + "')");
-                    continue;
-                }
-
-                Integer idCarrera = (Integer) ids.get("id_carrera_encontrado");
-
-                // 2. Género: MUJER -> 2, HOMBRE -> 1 (por defecto 1 si no se especifica)
-                String genero = fila.getGenero() != null ? fila.getGenero().toUpperCase() : "";
-                Integer idGenero = "MUJER".equals(genero) ? 2 : 1;
-
-                // 3. Validar correo no duplicado
-                if (fila.getCorreo() != null && !fila.getCorreo().isEmpty()) {
-                    if (!dataLoadRepository.validarCorreoDisponible(fila.getCorreo(), fila.getCedula())) {
-                        resultados.add("Cédula " + fila.getCedula() + ": ERROR (Correo duplicado: " + fila.getCorreo() + ")");
-                        continue;
-                    }
-                }
-
-                // 4. Ejecutar SP
                 String resultadoSP = ejecutarCargaEstudianteSP(
-                        fila.getCedula(), fila.getNombres(), fila.getApellidos(),
-                        fila.getCorreo(), "", fila.getTelefono(),
-                        idCarrera, idGenero, idPeriodo);
+                        fila.getIdentificacion(), fila.getNombres(), fila.getApellidos(),
+                        fila.getCorreo(), fila.getTelefono());
 
-                resultados.add("Cédula " + fila.getCedula() + ": " + resultadoSP);
+                resultados.add("ID " + fila.getIdentificacion() + ": " + resultadoSP);
 
             } catch (Exception e) {
-                resultados.add("Cédula " + fila.getCedula() + ": ERROR (" + e.getMessage() + ")");
+                resultados.add("ID " + fila.getIdentificacion() + ": ERROR (" + e.getMessage() + ")");
                 e.printStackTrace();
             }
         }
@@ -223,31 +191,23 @@ public class CoordinationServiceImpl implements ICoordinationService {
 
     // --- STORED PROCEDURES ---
 
-    private String ejecutarCargaEstudianteSP(String cedula, String nom, String ape, String correo,
-            String dir, String tel, Integer idCarrera, Integer idGen, Integer idPer) {
+    private String ejecutarCargaEstudianteSP(String identificador, String nombres, String apellidos,
+            String correo, String telefono) {
 
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("academico.sp_in_carga_estudiante");
         query.registerStoredProcedureParameter("p_identificador", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_nombres", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_apellidos", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_correo", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("p_direccion", String.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_telefono", String.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("p_idcarrera", Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("p_idgenero", Integer.class, ParameterMode.IN);
-        query.registerStoredProcedureParameter("p_idperiodo", Integer.class, ParameterMode.IN);
         query.registerStoredProcedureParameter("p_mensaje", String.class, ParameterMode.OUT);
         query.registerStoredProcedureParameter("p_exito", Boolean.class, ParameterMode.OUT);
 
-        query.setParameter("p_identificador", cedula);
-        query.setParameter("p_nombres", nom);
-        query.setParameter("p_apellidos", ape);
+        query.setParameter("p_identificador", identificador);
+        query.setParameter("p_nombres", nombres);
+        query.setParameter("p_apellidos", apellidos);
         query.setParameter("p_correo", correo);
-        query.setParameter("p_direccion", dir);
-        query.setParameter("p_telefono", tel);
-        query.setParameter("p_idcarrera", idCarrera);
-        query.setParameter("p_idgenero", idGen);
-        query.setParameter("p_idperiodo", idPer);
+        query.setParameter("p_telefono", telefono);
         query.execute();
 
         String mensaje = (String) query.getOutputParameterValue("p_mensaje");

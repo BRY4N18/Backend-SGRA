@@ -49,15 +49,14 @@ public class ExcelHelper {
     // Formato:
     //   Fila 0: Encabezado institución ("UNIVERSIDAD TÉCNICA ESTATAL DE QUEVEDO")
     //   Fila 1: Vacía
-    //   Fila 2: Cabeceras (ESTUDIANTE | IDENTIFICACIÓN | EMAIL INSTITUCIONAL | TELÉFONO | CARRERA | MODALIDAD | GENERO)
+    //   Fila 2: Cabeceras (ESTUDIANTE | IDENTIFICACIÓN | EMAIL INSTITUCIONAL | TELÉFONO | TELÉFONO 2)
     //   Fila 3+: Datos
     //     Col 0: Nombre completo (NOMBRES APELLIDOS) ej. "DAMARYS RAELITH AGUILAR LECHON"
-    //     Col 1: Cédula
-    //     Col 2: Email institucional
-    //     Col 3: Teléfono
-    //     Col 4: Carrera
-    //     Col 5: Modalidad
-    //     Col 6: Género
+    //     Col 1: Identificación (cédula, pasaporte o código postal)
+    //     Col 2: Email institucional ej. daguilarl3@uteq.edu.ec
+    //     Col 3: Teléfono principal
+    //     Col 4: Teléfono secundario (opcional)
+    // Carrera y modalidad se reciben como parámetros del endpoint.
     // =====================================================================
     public static List<StudentLoadDTO> excelToStudents(InputStream is, String carreraTexto, String modalidadTexto) {
         try (Workbook workbook = WorkbookFactory.create(is)) {
@@ -70,26 +69,28 @@ public class ExcelHelper {
                 if (row == null || isRowEmpty(row)) continue;
 
                 String nombreCompleto = getCellValue(row, 0).trim();
-                String cedula = getCellValue(row, 1).trim();
+                String identificacion = getCellValue(row, 1).trim();
                 String correo = getCellValue(row, 2).trim();
-                String telefono = getCellValue(row, 3).trim();
-                String carreraFila = getCellValue(row, 4).trim();
-                String modalidadFila = getCellValue(row, 5).trim();
+                String telefono1 = getCellValue(row, 3).trim();
+                String telefono2 = getCellValue(row, 4).trim();
 
-                if (cedula.isEmpty()) continue;
+                if (identificacion.isEmpty()) continue;
+
+                // Combinar teléfonos si hay dos
+                String telefono = (!telefono2.isEmpty()) ? telefono1 + " / " + telefono2 : telefono1;
 
                 // El nombre viene en formato NOMBRES APELLIDOS: ej. "DAMARYS RAELITH AGUILAR LECHON"
                 String[] partes = splitNombreApellido(nombreCompleto, false);
 
                 StudentLoadDTO estudiante = new StudentLoadDTO();
-                estudiante.setCedula(cedula);
+                estudiante.setIdentificacion(identificacion);
                 estudiante.setNombres(partes[0]);
                 estudiante.setApellidos(partes[1]);
                 estudiante.setCorreo(correo);
                 estudiante.setTelefono(telefono);
-                // Carrera y modalidad se leen del propio archivo; los parámetros del endpoint son fallback
-                estudiante.setCarreraTexto(!carreraFila.isEmpty() ? carreraFila : carreraTexto);
-                estudiante.setModalidadTexto(!modalidadFila.isEmpty() ? modalidadFila : modalidadTexto);
+                // Carrera y modalidad vienen del endpoint como parámetros
+                estudiante.setCarreraTexto(carreraTexto);
+                estudiante.setModalidadTexto(modalidadTexto);
 
                 estudiantes.add(estudiante);
             }
