@@ -132,6 +132,8 @@ public class ExcelHelper {
                 String paralelo = getCellValue(row, 4).trim();
                 String nombreProfesor = getCellValue(row, 5).trim();
 
+                // Si no hay profesor, o dice "None", ignoramos la fila por completo
+                if (nombreProfesor.isEmpty() || nombreProfesor.equalsIgnoreCase("None")) continue;
                 if (nombreProfesor.isEmpty() && materia.isEmpty()) continue;
 
                 // Nombre del profesor viene en APELLIDOS NOMBRES: ej. "BOSQUEZ MESTANZA ANGELITA LEONOR"

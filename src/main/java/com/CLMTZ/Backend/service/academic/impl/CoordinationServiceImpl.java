@@ -90,11 +90,7 @@ public class CoordinationServiceImpl implements ICoordinationService {
                         fila.getCorreo(), fila.getTelefono());
 
                 String nombreCompleto = (fila.getNombres() + " " + fila.getApellidos()).trim();
-                if ("OK".equals(resultadoSP)) {
-                    resultados.add("Estudiante: " + nombreCompleto + " se ha subido correctamente.");
-                } else {
-                    resultados.add("Estudiante: " + nombreCompleto + " (ID: " + fila.getIdentificacion() + "): " + resultadoSP);
-                }
+                resultados.add("Estudiante '" + nombreCompleto + "': " + resultadoSP);
 
             } catch (Exception e) {
                 resultados.add("ID " + fila.getIdentificacion() + ": ERROR (" + e.getMessage() + ")");
@@ -102,9 +98,9 @@ public class CoordinationServiceImpl implements ICoordinationService {
             }
         }
 
-        long exitosos = resultados.stream().filter(r -> r.contains("se ha subido correctamente")).count();
-        long errores = resultados.size() - exitosos;
-        resultados.add(0, "RESUMEN: " + dtos.size() + " registros procesados → " + exitosos + " exitosos, " + errores + " con errores/advertencias.");
+        long exitosos = resultados.stream().filter(r -> r.contains(": OK:")).count();
+        long errores = resultados.stream().filter(r -> r.contains(": ERROR") || r.contains("FALLÓ SP:")).count();
+        resultados.add(0, "RESUMEN: " + dtos.size() + " registros procesados → " + exitosos + " exitosos, " + errores + " con errores.");
 
         return resultados;
     }
@@ -165,7 +161,7 @@ public class CoordinationServiceImpl implements ICoordinationService {
 
         String mensaje = (String) query.getOutputParameterValue("p_mensaje");
         Boolean exito = (Boolean) query.getOutputParameterValue("p_exito");
-        return Boolean.TRUE.equals(exito) ? "OK" : "FALLÓ SP: " + mensaje;
+        return Boolean.TRUE.equals(exito) ? "OK: " + mensaje : "FALLÓ SP: " + mensaje;
     }
 
     private String ejecutarCargaDocenteSP(String nombres, String apellidos,
