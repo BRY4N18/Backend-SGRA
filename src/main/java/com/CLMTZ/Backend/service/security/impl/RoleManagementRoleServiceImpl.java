@@ -25,7 +25,8 @@ public class RoleManagementRoleServiceImpl implements IRoleManagementRoleService
     private final ObjectMapper objectMapper;
     private final IRoleManagementRoleCustomRepository roleManagementRoleCustomRepo;
 
-    public SpResponseDTO  updateRoleGRoleAssignment(UpdateAssignmentRolesGRolesRequestDTO updateAssignmentRoles){
+    @Override
+    public SpResponseDTO  updateRoleGRoleAssignment(List<UpdateAssignmentRolesGRolesRequestDTO> updateAssignmentRoles){
         try {
             String jsonAssignment = objectMapper.writeValueAsString(updateAssignmentRoles);
             return roleManagementRoleCustomRepo.updateRoleGRoleAssignment(jsonAssignment);
