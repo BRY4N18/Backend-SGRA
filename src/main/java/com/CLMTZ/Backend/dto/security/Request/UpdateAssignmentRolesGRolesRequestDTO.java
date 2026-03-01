@@ -15,5 +15,5 @@ import lombok.NoArgsConstructor;
 public class UpdateAssignmentRolesGRolesRequestDTO {
     private Integer roleAppGId;
     private String roleAppG;
-    private List<RolesServersAssignmentRequestDTO> rolesServer;
+    private List<Integer> serverRoleIds;
 }

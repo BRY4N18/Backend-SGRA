@@ -7,5 +7,5 @@ import com.CLMTZ.Backend.dto.security.Request.UpdateAssignmentRolesGRolesRequest
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 
 public interface IRoleManagementRoleService {
-    SpResponseDTO  updateRoleGRoleAssignment(UpdateAssignmentRolesGRolesRequestDTO updateAssignmentRoles);
+    SpResponseDTO  updateRoleGRoleAssignment(List<UpdateAssignmentRolesGRolesRequestDTO> updateAssignmentRoles);
 }

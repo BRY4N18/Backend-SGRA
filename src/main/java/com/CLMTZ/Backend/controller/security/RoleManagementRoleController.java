@@ -19,7 +19,7 @@ public class RoleManagementRoleController {
     private final IRoleManagementRoleService roleManagementRoleSer;
 
     @PutMapping("/update-assignment")
-    public ResponseEntity<SpResponseDTO> updateRoleGRoleAssignment(@RequestBody UpdateAssignmentRolesGRolesRequestDTO updateAssignmentRoles){
+    public ResponseEntity<SpResponseDTO> updateRoleGRoleAssignment(@RequestBody List<UpdateAssignmentRolesGRolesRequestDTO> updateAssignmentRoles){
         SpResponseDTO responseDTO = roleManagementRoleSer.updateRoleGRoleAssignment(updateAssignmentRoles);
         return ResponseEntity.ok(responseDTO);
     }
