@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModalityItemDTO {
-    private Integer modalityId;
-    private String modalityName;
+public class ClassmateItemDTO {
+    private Integer studentId;
+    private String fullName;
+    private String email;
 }
+

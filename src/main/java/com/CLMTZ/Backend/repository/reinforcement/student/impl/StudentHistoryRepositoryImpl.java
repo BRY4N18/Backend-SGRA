@@ -71,44 +71,54 @@ public class StudentHistoryRepositoryImpl implements StudentHistoryRepository {
 
     @Override
     public StudentHistorySessionsPageDTO getPreviousSessions(Integer userId, Integer page, Integer size, Boolean onlyAttended) {
-        String sql = "SELECT * FROM reforzamiento.fn_sl_sesiones_anteriores_estudiante_ui(:userId, :page, :size, :onlyAttended)";
+        try {
+            String sql = "SELECT * FROM reforzamiento.fn_sl_sesiones_anteriores_estudiante_ui(" +
+                    ":userId, :page, :size, :onlyAttended)";
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("userId", userId);
-        params.addValue("page", page);
-        params.addValue("size", size);
-        params.addValue("onlyAttended", onlyAttended);
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("userId", userId, java.sql.Types.INTEGER);
+            params.addValue("page", page, java.sql.Types.INTEGER);
+            params.addValue("size", size, java.sql.Types.INTEGER);
+            params.addValue("onlyAttended", onlyAttended, java.sql.Types.BOOLEAN);
 
-        List<StudentHistorySessionItemDTO> items = new ArrayList<>();
-        final Long[] totalCount = {0L};
+            List<StudentHistorySessionItemDTO> items = new ArrayList<>();
+            final Long[] totalCount = {0L};
 
-        getJdbcTemplate().query(sql, params, (rs) -> {
-            StudentHistorySessionItemDTO item = new StudentHistorySessionItemDTO();
-            item.setCompletedSessionId(rs.getInt("idrefuerzorealizado"));
-            item.setAttended(rs.getBoolean("asistencia"));
+            getJdbcTemplate().query(sql, params, (rs) -> {
+                StudentHistorySessionItemDTO item = new StudentHistorySessionItemDTO();
+                item.setCompletedSessionId(rs.getInt("idrefuerzorealizado"));
+                item.setAttended(rs.getBoolean("asistencia"));
 
-            Time time = rs.getTime("duracion");
-            item.setDuration(time != null ? time.toString() : null);
+                Time time = rs.getTime("duracion");
+                item.setDuration(time != null ? time.toString() : null);
 
-            item.setNotes(rs.getString("observacion"));
-            item.setRequestId(rs.getInt("idsolicitudrefuerzo"));
+                item.setNotes(rs.getString("observacion"));
+                item.setRequestId(rs.getInt("idsolicitudrefuerzo"));
 
-            Timestamp timestamp = rs.getTimestamp("fecha_solicitud");
-            item.setRequestDateTime(timestamp != null ? timestamp.toInstant().toString() : null);
+                Timestamp timestamp = rs.getTimestamp("fecha_solicitud");
+                item.setRequestDateTime(timestamp != null ? timestamp.toInstant().toString() : null);
 
-            item.setSubjectName(rs.getString("asignatura"));
-            item.setSyllabusName(rs.getString("temario"));
-            item.setUnit(rs.getShort("unidad"));
-            item.setTeacherName(rs.getString("docente"));
-            item.setSessionType(rs.getString("tipo"));
+                item.setSubjectName(rs.getString("asignatura"));
+                item.setSyllabusName(rs.getString("temario"));
+                item.setUnit(rs.getShort("unidad"));
+                item.setTeacherName(rs.getString("docente"));
+                item.setSessionType(rs.getString("tipo"));
 
-            if (items.isEmpty()) {
-                totalCount[0] = rs.getLong("total_count");
+                if (items.isEmpty()) {
+                    totalCount[0] = rs.getLong("total_count");
+                }
+
+                items.add(item);
+            });
+
+            return new StudentHistorySessionsPageDTO(items, totalCount[0], page, size);
+        } catch (Exception e) {
+            // Log the real cause for debugging
+            System.err.println("[StudentHistoryRepo] Error in getPreviousSessions: " + e.getMessage());
+            if (e.getCause() != null) {
+                System.err.println("[StudentHistoryRepo] Caused by: " + e.getCause().getMessage());
             }
-
-            items.add(item);
-        });
-
-        return new StudentHistorySessionsPageDTO(items, totalCount[0], page, size);
+            return new StudentHistorySessionsPageDTO(new ArrayList<>(), 0L, page, size);
+        }
     }
 }

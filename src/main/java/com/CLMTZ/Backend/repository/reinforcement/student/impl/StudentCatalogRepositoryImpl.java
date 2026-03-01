@@ -23,9 +23,13 @@ public class StudentCatalogRepositoryImpl implements StudentCatalogRepository {
     }
 
     @Override
-    public List<SubjectItemDTO> listSubjects() {
-        String sql = "SELECT * FROM academico.fn_sl_cat_asignaturas()";
-        return getJdbcTemplate().query(sql, (rs, rowNum) -> new SubjectItemDTO(
+    public List<SubjectItemDTO> listEnrolledSubjects(Integer userId) {
+        String sql = "SELECT * FROM reforzamiento.fn_sl_asignaturas_estudiante(:userId)";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
+
+        return getJdbcTemplate().query(sql, params, (rs, rowNum) -> new SubjectItemDTO(
                 rs.getInt("idasignatura"),
                 rs.getString("asignatura"),
                 rs.getShort("semestre")
@@ -33,37 +37,21 @@ public class StudentCatalogRepositoryImpl implements StudentCatalogRepository {
     }
 
     @Override
-    public List<SyllabusItemDTO> listSyllabiBySubject(Integer subjectId) {
-        String sql = "SELECT * FROM academico.fn_sl_temarios_por_asignatura(:subjectId)";
+    public StudentSubjectTeacherDTO getTeacherForStudentSubject(Integer userId, Integer subjectId) {
+        String sql = "SELECT * FROM reforzamiento.fn_sl_docente_por_asignatura_estudiante(:userId, :subjectId)";
+
         MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("userId", userId);
         params.addValue("subjectId", subjectId);
-        return getJdbcTemplate().query(sql, params, (rs, rowNum) -> new SyllabusItemDTO(
-                rs.getInt("idtemario"),
-                rs.getString("nombretemario"),
-                rs.getShort("unidad")
-        ));
-    }
 
-    @Override
-    public List<TeacherItemDTO> listTeachers(Integer modalityId) {
-        String sql = "SELECT * FROM academico.fn_sl_cat_docentes_ui(:modalityId)";
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("modalityId", modalityId);
-        return getJdbcTemplate().query(sql, params, (rs, rowNum) -> new TeacherItemDTO(
-                rs.getInt("iddocente"),
-                rs.getString("nombre_completo"),
-                rs.getString("correo"),
-                rs.getObject("idmodalidad") != null ? rs.getInt("idmodalidad") : null
-        ));
-    }
+        List<StudentSubjectTeacherDTO> results = getJdbcTemplate().query(sql, params, (rs, rowNum) ->
+                new StudentSubjectTeacherDTO(
+                        rs.getInt("iddocente"),
+                        rs.getString("nombre_completo"),
+                        rs.getString("correo")
+                ));
 
-    @Override
-    public List<ModalityItemDTO> listModalities() {
-        String sql = "SELECT * FROM academico.fn_sl_cat_modalidades()";
-        return getJdbcTemplate().query(sql, (rs, rowNum) -> new ModalityItemDTO(
-                rs.getInt("idmodalidad"),
-                rs.getString("modalidad")
-        ));
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @Override
@@ -76,35 +64,40 @@ public class StudentCatalogRepositoryImpl implements StudentCatalogRepository {
     }
 
     @Override
-    public List<TimeSlotItemDTO> listTimeSlots() {
-        String sql = "SELECT * FROM academico.fn_sl_cat_franjas_horarias_ui()";
-        return getJdbcTemplate().query(sql, (rs, rowNum) -> new TimeSlotItemDTO(
-                rs.getInt("idfranjahoraria"),
-                rs.getString("label"),
-                rs.getString("franja")
-        ));
+    public ActivePeriodDTO getActivePeriod() {
+        String sql = "SELECT * FROM reforzamiento.fn_sl_periodo_activo()";
+
+        List<ActivePeriodDTO> results = getJdbcTemplate().query(sql, (rs, rowNum) ->
+                new ActivePeriodDTO(
+                        rs.getInt("idperiodo"),
+                        rs.getString("periodo")
+                ));
+
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @Override
-    public List<AvailableTimeSlotDTO> listAvailableTimeSlots(Integer teacherId, Short dayOfWeek, Integer periodId) {
-        String sql = "SELECT * FROM academico.fn_sl_franjas_docente_disponibles_ui(:teacherId, :dayOfWeek, :periodId)";
+    public List<ClassmateItemDTO> listClassmatesBySubject(Integer subjectId, Integer currentUserId) {
+        String sql = "SELECT * FROM reforzamiento.fn_sl_companeros_por_asignatura(:subjectId, :currentUserId)";
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("teacherId", teacherId);
-        params.addValue("dayOfWeek", dayOfWeek);
-        params.addValue("periodId", periodId);
+        params.addValue("subjectId", subjectId);
+        params.addValue("currentUserId", currentUserId);
 
-        return getJdbcTemplate().query(sql, params, (rs, rowNum) -> new AvailableTimeSlotDTO(
-                rs.getInt("idfranjahoraria"),
-                rs.getString("label"),
-                rs.getString("franja")
+        return getJdbcTemplate().query(sql, params, (rs, rowNum) -> new ClassmateItemDTO(
+                rs.getInt("student_id"),
+                rs.getString("full_name"),
+                rs.getString("email")
         ));
     }
 
     @Override
-    public boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId) {
-        List<AvailableTimeSlotDTO> availableSlots = listAvailableTimeSlots(teacherId, dayOfWeek, periodId);
-        return availableSlots.stream()
-                .anyMatch(slot -> slot.getTimeSlotId().equals(timeSlotId));
+    public void addResourceUrl(Integer requestId, String fileUrl) {
+        String sql = "SELECT reforzamiento.fn_in_recurso_solicitud(:requestId, :fileUrl)";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("requestId", requestId);
+        params.addValue("fileUrl", fileUrl);
+        getJdbcTemplate().queryForObject(sql, params, Integer.class);
     }
 }

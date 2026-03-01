@@ -5,32 +5,52 @@ import com.CLMTZ.Backend.dto.reinforcement.student.*;
 import java.util.List;
 
 public interface StudentCatalogRepository {
-    List<SubjectItemDTO> listSubjects();
-    List<SyllabusItemDTO> listSyllabiBySubject(Integer subjectId);
-    List<TeacherItemDTO> listTeachers(Integer modalityId);
-    List<ModalityItemDTO> listModalities();
+
+    /**
+     * Lista las asignaturas en las que el estudiante está matriculado en el periodo activo.
+     *
+     * @param userId ID del usuario autenticado
+     * @return Lista de asignaturas matriculadas
+     */
+    List<SubjectItemDTO> listEnrolledSubjects(Integer userId);
+
+    /**
+     * Obtiene el docente asignado al paralelo del estudiante para una asignatura.
+     * Filtra por el paralelo que tiene el estudiante en tbdetallematricula y busca en tbclases
+     * el docente correspondiente a ese paralelo + asignatura + periodo activo.
+     *
+     * @param userId    ID del usuario autenticado
+     * @param subjectId ID de la asignatura
+     * @return DTO con datos del docente, o null si no hay docente asignado
+     */
+    StudentSubjectTeacherDTO getTeacherForStudentSubject(Integer userId, Integer subjectId);
+
+    /**
+     * Lista los tipos de sesión (Individual, Grupal).
+     */
     List<SessionTypeItemDTO> listSessionTypes();
-    List<TimeSlotItemDTO> listTimeSlots();
 
     /**
-     * Lista franjas horarias disponibles para un docente específico.
-     * Filtra por disponibilidad del docente y excluye franjas ocupadas por solicitudes activas.
+     * Obtiene el periodo académico activo (estado=true y fecha actual entre inicio y fin).
      *
-     * @param teacherId ID del docente
-     * @param dayOfWeek Día de la semana (1=Lunes, 7=Domingo)
-     * @param periodId ID del periodo académico
-     * @return Lista de franjas disponibles
+     * @return DTO con el periodo activo, o null si no hay periodo activo
      */
-    List<AvailableTimeSlotDTO> listAvailableTimeSlots(Integer teacherId, Short dayOfWeek, Integer periodId);
+    ActivePeriodDTO getActivePeriod();
 
     /**
-     * Verifica si una franja horaria específica está disponible para un docente.
+     * Lista compañeros matriculados en la misma asignatura, excluyendo al usuario actual.
      *
-     * @param teacherId ID del docente
-     * @param dayOfWeek Día de la semana
-     * @param periodId ID del periodo
-     * @param timeSlotId ID de la franja a verificar
-     * @return true si la franja está disponible, false en caso contrario
+     * @param subjectId     ID de la asignatura
+     * @param currentUserId ID del usuario actual (para excluirlo de la lista)
+     * @return Lista de compañeros con studentId, nombre completo y email
      */
-    boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId);
+    List<ClassmateItemDTO> listClassmatesBySubject(Integer subjectId, Integer currentUserId);
+
+    /**
+     * Inserta una URL de recurso/archivo para una solicitud de refuerzo.
+     *
+     * @param requestId ID de la solicitud
+     * @param fileUrl   URL del archivo subido a Azure Blob Storage
+     */
+    void addResourceUrl(Integer requestId, String fileUrl);
 }
