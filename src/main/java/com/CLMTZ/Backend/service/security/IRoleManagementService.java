@@ -3,8 +3,10 @@ package com.CLMTZ.Backend.service.security;
 import java.util.List;
 
 import com.CLMTZ.Backend.dto.security.Request.RoleManagementRequestDTO;
+import com.CLMTZ.Backend.dto.security.Request.RoleRequestDTO;
 import com.CLMTZ.Backend.dto.security.Response.KpiDashboardManagementResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.RoleListResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 
 public interface IRoleManagementService {
@@ -17,4 +19,6 @@ public interface IRoleManagementService {
     List<RoleManagementRequestDTO> listRoleNames();
 
     KpiDashboardManagementResponseDTO kpisDashboadrManagement();
+
+    List<RoleListResponseDTO> listRoleManagementRole();
 }

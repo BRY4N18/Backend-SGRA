@@ -1,13 +1,19 @@
 package com.CLMTZ.Backend.service.security.impl;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.CLMTZ.Backend.dto.security.Request.RoleManagementRequestDTO;
+import com.CLMTZ.Backend.dto.security.Response.FlatRoleMappingDTO;
 import com.CLMTZ.Backend.dto.security.Response.KpiDashboardManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.RoleListManagementConectionResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.RoleListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.Response.RoleListResponseDTO;
 import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 import com.CLMTZ.Backend.model.security.RoleManagement;
 import com.CLMTZ.Backend.repository.security.IRoleManagementRepository;
@@ -67,6 +73,39 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
             return roleManagementCustomRepo.updateRoleManagement(roleRequest.getRoleGId(), roleRequest.getRoleG(), roleRequest.getDescription(), roleRequest.getState());
         } catch (Exception e){
             throw new RuntimeException("Error al editar el rol: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RoleListResponseDTO> listRoleManagementRole(){
+        try {
+            List<FlatRoleMappingDTO> flatList = roleManagementCustomRepo.listRoleManagementRole();
+            
+            List<RoleListResponseDTO> listFinish = flatList.stream()
+                .collect(Collectors.groupingBy(FlatRoleMappingDTO::getPidrol, LinkedHashMap::new, Collectors.toList())).entrySet().stream()
+                    .map(entry -> {
+                        Integer roleAppId = entry.getKey();
+                        List<FlatRoleMappingDTO> mapp = entry.getValue();
+
+                        String roleAppName = mapp.get(0).getPgrol();
+
+                        List<RoleListManagementConectionResponseDTO> serverRoles = mapp.stream()
+                            .map(m -> new RoleListManagementConectionResponseDTO(
+                                m.getPidgrol(),
+                                m.getPgrol(),
+                                m.getPgdescripcion(),
+                                m.getPrelacion()
+                            )).collect(Collectors.toList());
+
+                            return new RoleListResponseDTO(roleAppId, roleAppName, serverRoles);
+
+                    }).collect(Collectors.toList());
+
+                    return listFinish;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al listar los roles del aplicativo: " + e.getMessage());
         }
     }
 
