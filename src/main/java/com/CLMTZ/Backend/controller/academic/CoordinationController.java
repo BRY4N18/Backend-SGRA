@@ -90,7 +90,7 @@ public class CoordinationController {
         }
 
         try {
-            List<EnrollmentDetailLoadDTO> registrationDTOs = ExcelHelper.excelToEnrollmentDetails(file.getInputStream());
+            List<EnrollmentDetailLoadDTO> registrationDTOs = ExcelHelper.excelToEnrollments(file.getInputStream(), file.getOriginalFilename());
             List<String> report = enrollmentDetailService.uploadEnrollmentDetails(registrationDTOs);
             boolean tieneErrores = report.stream().anyMatch(r ->
                     r.contains(": ERROR") || r.startsWith("ADVERTENCIA") || r.startsWith("ERROR GENERAL"));
