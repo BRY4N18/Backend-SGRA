@@ -328,40 +328,60 @@ public class ExcelHelper {
 
     // =====================================================================
     // MATRICULA.xlsx
-    // Formato:
-    //   Fila 6 (índice 6):  nombres de asignaturas a partir de la columna 10
-    //   Fila 8 (índice 8)+: datos de estudiantes
-    //     Col 1: Nivel/Semestre  Col 3: Identificación  Col 6: Sexo
-    //     Col 8: Paralelo        Col 10+: estado por asignatura ("M" = matriculado)
     // =====================================================================
     public static List<EnrollmentDetailLoadDTO> excelToEnrollments(InputStream is, String fileName) {
-        try {
-            Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(is) : new HSSFWorkbook(is);
+        try (Workbook workbook = fileName.endsWith(".xlsx") ? new XSSFWorkbook(is) : new HSSFWorkbook(is)) {
             Sheet sheet = workbook.getSheetAt(0);
             List<EnrollmentDetailLoadDTO> detalles = new ArrayList<>();
 
-            // 1. LEER ASIGNATURAS (Fila visual 7 → índice 6)
-            Row filaAsignaturas = sheet.getRow(6);
-            Map<Integer, String> asignaturasPorColumna = new LinkedHashMap<>();
-
-            // Las materias empiezan en la columna 10
-            if (filaAsignaturas != null) {
-                for (int col = 10; col <= filaAsignaturas.getLastCellNum(); col++) {
-                    String nombreAsig = getCellValue(filaAsignaturas, col).trim();
-                    // Filtramos celdas vacías o columnas de totales
-                    if (nombreAsig.isEmpty()
-                            || nombreAsig.equalsIgnoreCase("APROBADAS")
-                            || nombreAsig.equalsIgnoreCase("REPROBADAS")
-                            || nombreAsig.equalsIgnoreCase("MATRICULADAS")
-                            || nombreAsig.equalsIgnoreCase("PENDIENTES")
-                            || nombreAsig.equals("0")) {
-                        continue;
-                    }
-                    asignaturasPorColumna.put(col, nombreAsig);
+            // 1. PARALELO GLOBAL (por si viene en los encabezados, celda I8)
+            String paraleloGlobal = "A";
+            Row filaParalelo = sheet.getRow(7);
+            if (filaParalelo != null) {
+                String rawParalelo = getCellValue(filaParalelo, 8).trim().toUpperCase();
+                if (!rawParalelo.isEmpty()) {
+                    String sinPrefijo = rawParalelo.replaceAll(".*PARALELO[:\\s]*", "").trim();
+                    paraleloGlobal = sinPrefijo.isEmpty()
+                            ? String.valueOf(rawParalelo.charAt(rawParalelo.length() - 1))
+                            : String.valueOf(sinPrefijo.charAt(0));
                 }
             }
 
-            // 2. LEER ESTUDIANTES (Fila visual 9 → índice 8 en adelante)
+            // 2. LEER ASIGNATURAS (Fila visual 7 → índice 6)
+            Row filaAsignaturas = sheet.getRow(6);
+            if (filaAsignaturas == null) {
+                throw new RuntimeException("El archivo no tiene el formato esperado (falta fila de asignaturas).");
+            }
+            Map<Integer, String> asignaturasPorColumna = new LinkedHashMap<>();
+            for (int col = 10; col <= filaAsignaturas.getLastCellNum(); col++) { // Empiezan en Col 10
+                String nombreAsig = getCellValue(filaAsignaturas, col).trim();
+                if (nombreAsig.isEmpty() || COLUMNAS_RESUMEN.contains(nombreAsig.toUpperCase()) || nombreAsig.equals("0")) {
+                    continue;
+                }
+                asignaturasPorColumna.put(col, nombreAsig);
+            }
+
+            // 3. LEER SEMESTRES EXACTOS POR MATERIA (Fila visual 8 → índice 7)
+            Row filaNiveles = sheet.getRow(7);
+            Map<Integer, Integer> semestrePorColumna = new LinkedHashMap<>();
+            if (filaNiveles != null) {
+                int maxCol = filaAsignaturas.getLastCellNum();
+                Integer currentSemestre = 1; // carry-forward
+                for (int col = 10; col <= maxCol; col++) {
+                    String nivelTexto = getCellValue(filaNiveles, col).trim();
+                    if (!nivelTexto.isEmpty()) {
+                        java.util.regex.Matcher mNivel = java.util.regex.Pattern.compile("\\d+").matcher(nivelTexto);
+                        if (mNivel.find()) {
+                            try { currentSemestre = Integer.parseInt(mNivel.group()); } catch (Exception ignored) {}
+                        }
+                    }
+                    if (asignaturasPorColumna.containsKey(col)) {
+                        semestrePorColumna.put(col, currentSemestre);
+                    }
+                }
+            }
+
+            // 4. LEER ESTUDIANTES Y SUS MATRICULAS (Fila visual 9 → índice 8 en adelante)
             for (int i = 8; i < sheet.getPhysicalNumberOfRows(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null || ExcelValidator.isRowEmpty(row)) continue;
@@ -369,46 +389,50 @@ public class ExcelHelper {
                 String identificador = getCellValue(row, 3).trim(); // Col 3: IDENTIFICACIÓN
                 if (identificador.isEmpty()) continue;
 
-                String sexo     = getCellValue(row, 6).trim(); // Col 6: SEXO
-                String paralelo = getCellValue(row, 8).trim(); // Col 8: PARALELO
+                String sexoRaw  = getCellValue(row, 6).trim().toUpperCase(); // Col 6: SEXO
+                String sexo     = sexoRaw.isEmpty() ? "" : sexoRaw.substring(0, 1);
+                
+                // LEEMOS EL PARALELO DE LA FILA BASE (Col 8)
+                String paraleloBase = getCellValue(row, 8).trim().toUpperCase();
+                if (paraleloBase.isEmpty()) paraleloBase = paraleloGlobal;
+                if (paraleloBase.length() > 5) paraleloBase = paraleloBase.substring(0, 1);
 
-                // Escudo protector: si viene vacío se fuerza "A"; si es demasiado largo se recorta
-                if (paralelo.isEmpty()) {
-                    paralelo = "A";
-                } else if (paralelo.length() > 5) {
-                    paralelo = paralelo.substring(0, 1);
-                }
-
-                String nivelEst = getCellValue(row, 1).trim(); // Col 1: NIVEL/SEMESTRE
-
-                // Extraer el número de semestre del texto del nivel
-                Integer semestre = 1;
-                java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(nivelEst);
-                if (m.find()) {
-                    try { semestre = Integer.parseInt(m.group()); } catch (NumberFormatException ignored) {}
-                }
-
-                // Por cada asignatura detectada, crear un detalle si el estado es "M"
+                // RECORRER CADA MATERIA EN LA QUE PODRÍA ESTAR MATRICULADO
                 for (Map.Entry<Integer, String> entry : asignaturasPorColumna.entrySet()) {
                     String estado = getCellValue(row, entry.getKey()).trim().toUpperCase();
-                    if (!"M".equals(estado)) continue;
+                    
+                    // Si la celda está vacía, tiene un 0 o un guion, saltamos (no toma la materia)
+                    if (estado.isEmpty() || estado.equals("0") || estado.equals("-")) continue;
+
+                    // 🔥 LA MAGIA DEL PARALELO INDIVIDUAL (Adiós problemas de arrastre) 🔥
+                    String paraleloFinalMateria;
+                    
+                    if (estado.equals("M") || estado.equals("X")) {
+                        // Si pusieron la típica "M", usa el paralelo base de la columna 8
+                        paraleloFinalMateria = paraleloBase; 
+                    } else {
+                        // Si escribieron "A", "B", o "C" directamente en la celda de la materia, usamos ESE paralelo
+                        paraleloFinalMateria = estado.substring(0, 1); 
+                    }
+
+                    // Obtenemos el semestre EXACTO de esa materia (no el del estudiante)
+                    Integer semestreExacto = semestrePorColumna.getOrDefault(entry.getKey(), 1);
 
                     EnrollmentDetailLoadDTO detalle = new EnrollmentDetailLoadDTO();
                     detalle.setIdentificador(identificador);
                     detalle.setSexo(sexo);
                     detalle.setAsignatura(entry.getValue());
-                    detalle.setSemestre(semestre);
-                    detalle.setParalelo(paralelo);
+                    detalle.setSemestre(semestreExacto);
+                    detalle.setParalelo(paraleloFinalMateria); 
                     detalles.add(detalle);
                 }
             }
-            workbook.close();
             return detalles;
         } catch (Exception e) {
             throw new RuntimeException("Error al parsear Excel de Matrículas: " + e.getMessage());
         }
     }
-
+    
     // =====================================================================
     // UTILIDADES PRIVADAS
     // =====================================================================
