@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SyllabusItemDTO {
-    private Integer syllabusId;
-    private String syllabusName;
-    private Short unit;
+public class ClassmateItemDTO {
+    private Integer studentId;
+    private String fullName;
+    private String email;
 }
+

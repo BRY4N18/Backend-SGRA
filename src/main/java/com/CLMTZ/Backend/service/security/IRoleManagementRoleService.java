@@ -3,11 +3,9 @@ package com.CLMTZ.Backend.service.security;
 import java.util.List;
 
 import com.CLMTZ.Backend.dto.security.Request.RoleManagementRoleRequestDTO;
+import com.CLMTZ.Backend.dto.security.Request.UpdateAssignmentRolesGRolesRequestDTO;
+import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
 
 public interface IRoleManagementRoleService {
-    List<RoleManagementRoleRequestDTO> findAll();
-    RoleManagementRoleRequestDTO findById(Integer id);
-    RoleManagementRoleRequestDTO save(RoleManagementRoleRequestDTO dto);
-    RoleManagementRoleRequestDTO update(Integer id, RoleManagementRoleRequestDTO dto);
-    void deleteById(Integer id);
+    SpResponseDTO  updateRoleGRoleAssignment(UpdateAssignmentRolesGRolesRequestDTO updateAssignmentRoles);
 }

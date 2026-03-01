@@ -3,14 +3,12 @@ package com.CLMTZ.Backend.controller.reinforcement.student;
 import com.CLMTZ.Backend.config.UserContextHolder;
 import com.CLMTZ.Backend.dto.reinforcement.student.StudentRequestCreateRequestDTO;
 import com.CLMTZ.Backend.dto.reinforcement.student.StudentRequestCreateResponseDTO;
-import com.CLMTZ.Backend.dto.reinforcement.student.StudentRequestPreviewRequestDTO;
-import com.CLMTZ.Backend.dto.reinforcement.student.StudentRequestPreviewResponseDTO;
 import com.CLMTZ.Backend.dto.security.session.UserContext;
-import com.CLMTZ.Backend.exception.TimeSlotNotAvailableException;
 import com.CLMTZ.Backend.service.reinforcement.student.StudentRequestService;
-import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -19,80 +17,51 @@ import java.util.Map;
 public class StudentRequestController {
 
     private final StudentRequestService studentRequestService;
+    private final ObjectMapper objectMapper;
 
-    public StudentRequestController(StudentRequestService studentRequestService) {
+    public StudentRequestController(StudentRequestService studentRequestService, ObjectMapper objectMapper) {
         this.studentRequestService = studentRequestService;
+        this.objectMapper = objectMapper;
     }
 
-    @PostMapping("/preview")
-    public ResponseEntity<?> preview(@RequestBody StudentRequestPreviewRequestDTO req) {
-        try {
-            if (req.getSyllabusId() == null || req.getSyllabusId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid syllabusId parameter"));
-            }
-            if (req.getTeacherId() == null || req.getTeacherId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid teacherId parameter"));
-            }
-            if (req.getTimeSlotId() == null || req.getTimeSlotId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid timeSlotId parameter"));
-            }
-            if (req.getModalityId() == null || req.getModalityId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid modalityId parameter"));
-            }
-            if (req.getSessionTypeId() == null || req.getSessionTypeId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid sessionTypeId parameter"));
-            }
-
-            StudentRequestPreviewResponseDTO response = studentRequestService.preview(req);
-            return ResponseEntity.ok(response);
-
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error generating preview: " + e.getMessage()));
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody StudentRequestCreateRequestDTO req) {
+    /**
+     * Crea una nueva solicitud de refuerzo.
+     * Recibe los datos como multipart/form-data:
+     * - "request": JSON con los datos de la solicitud (StudentRequestCreateRequestDTO)
+     * - "files": archivos opcionales a adjuntar (MultipartFile[])
+     */
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<?> create(
+            @RequestPart("request") String requestJson,
+            @RequestPart(value = "files", required = false) MultipartFile[] files) {
         try {
             UserContext ctx = UserContextHolder.getContext();
             Integer userId = ctx.getUserId();
 
+            // Deserializar el JSON del request
+            StudentRequestCreateRequestDTO req = objectMapper.readValue(requestJson, StudentRequestCreateRequestDTO.class);
 
-            if (req.getSyllabusId() == null || req.getSyllabusId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid syllabusId parameter"));
-            }
-            if (req.getTeacherId() == null || req.getTeacherId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid teacherId parameter"));
-            }
-            if (req.getTimeSlotId() == null || req.getTimeSlotId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid timeSlotId parameter"));
-            }
-            if (req.getModalityId() == null || req.getModalityId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid modalityId parameter"));
+            // Validaciones
+            if (req.getSubjectId() == null || req.getSubjectId() <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Debe seleccionar una asignatura"));
             }
             if (req.getSessionTypeId() == null || req.getSessionTypeId() <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid sessionTypeId parameter"));
+                return ResponseEntity.badRequest().body(Map.of("message", "Debe seleccionar un tipo de sesión"));
             }
             if (req.getReason() == null || req.getReason().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Reason cannot be empty"));
+                return ResponseEntity.badRequest().body(Map.of("message", "El motivo no puede estar vacío"));
             }
-            if (req.getRequestedDay() == null || req.getRequestedDay() < 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid requestedDay parameter"));
+            if (req.getReason().trim().length() < 10) {
+                return ResponseEntity.badRequest().body(Map.of("message", "El motivo debe tener al menos 10 caracteres"));
             }
 
-            StudentRequestCreateResponseDTO response = studentRequestService.create(req, userId);
+            StudentRequestCreateResponseDTO response = studentRequestService.create(req, userId, files);
             return ResponseEntity.ok(response);
 
-        } catch (TimeSlotNotAvailableException e) {
-            // HTTP 409 Conflict: La franja no está disponible para el docente
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", e.getMessage(), "errorCode", "TIME_SLOT_NOT_AVAILABLE"));
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error creating request: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("message", "Error al crear la solicitud: " + e.getMessage()));
         }
     }
 }

@@ -4,10 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO para el periodo académico activo.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModalityItemDTO {
-    private Integer modalityId;
-    private String modalityName;
+public class ActivePeriodDTO {
+    private Integer periodId;
+    private String periodName;
 }
+

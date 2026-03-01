@@ -4,11 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * DTO de respuesta al aceptar/rechazar una invitación grupal.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TimeSlotItemDTO {
-    private Integer timeSlotId;
-    private String label;
-    private String timeSlotJson;
+public class StudentInvitationResponseDTO {
+    private Boolean success;
+    private String message;
 }
+
