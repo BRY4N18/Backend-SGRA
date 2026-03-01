@@ -5,39 +5,36 @@ import com.CLMTZ.Backend.dto.reinforcement.student.*;
 import java.util.List;
 
 public interface StudentCatalogService {
-    List<SubjectItemDTO> getSubjects();
-    List<SyllabusItemDTO> getSyllabiBySubject(Integer subjectId);
-    List<TeacherItemDTO> getTeachers(Integer modalityId);
-    List<ModalityItemDTO> getModalities();
+
+    /**
+     * Obtiene las asignaturas en las que el estudiante está matriculado (periodo activo).
+     */
+    List<SubjectItemDTO> getEnrolledSubjects();
+
+    /**
+     * Obtiene el docente asignado al paralelo del estudiante para una asignatura.
+     * Retorna null si no hay docente asignado.
+     */
+    StudentSubjectTeacherDTO getTeacherForSubject(Integer subjectId);
+
+    /**
+     * Lista tipos de sesión (Individual, Grupal).
+     */
     List<SessionTypeItemDTO> getSessionTypes();
-    List<TimeSlotItemDTO> getTimeSlots();
 
     /**
-     * Obtiene franjas horarias disponibles para un docente específico.
-     *
-     * @param teacherId ID del docente
-     * @param dayOfWeek Día de la semana (1=Lunes, 7=Domingo)
-     * @param periodId ID del periodo académico
-     * @return Lista de franjas disponibles
+     * Obtiene el periodo académico activo.
      */
-    List<AvailableTimeSlotDTO> getAvailableTimeSlots(Integer teacherId, Short dayOfWeek, Integer periodId);
-
-    /**
-     * Verifica si una franja horaria está disponible para un docente.
-     *
-     * @param teacherId ID del docente
-     * @param dayOfWeek Día de la semana
-     * @param periodId ID del periodo
-     * @param timeSlotId ID de la franja a verificar
-     * @return true si está disponible, false en caso contrario
-     */
-    boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId);
+    ActivePeriodDTO getActivePeriod();
 
     /**
      * Obtiene los compañeros matriculados en la misma asignatura.
-     *
-     * @param subjectId ID de la asignatura
-     * @return Lista de compañeros (excluyendo al usuario actual)
+     * Excluye al usuario autenticado.
      */
     List<ClassmateItemDTO> getClassmatesBySubject(Integer subjectId);
+
+    /**
+     * Inserta una URL de recurso/archivo para una solicitud.
+     */
+    void addResourceUrl(Integer requestId, String fileUrl);
 }

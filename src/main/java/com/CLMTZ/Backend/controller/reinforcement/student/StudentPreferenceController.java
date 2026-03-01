@@ -43,7 +43,8 @@ public class StudentPreferenceController {
             StudentPreferenceDTO preference = studentPreferenceService.getMyPreference(userId);
 
             if (preference == null) {
-                return ResponseEntity.ok(Map.of("preference", (Object) null));
+                // Estudiante nuevo sin preferencia configurada
+                return ResponseEntity.ok().build();
             }
 
             return ResponseEntity.ok(preference);

@@ -18,23 +18,15 @@ public class StudentCatalogServiceImpl implements StudentCatalogService {
     }
 
     @Override
-    public List<SubjectItemDTO> getSubjects() {
-        return studentCatalogRepository.listSubjects();
+    public List<SubjectItemDTO> getEnrolledSubjects() {
+        Integer userId = UserContextHolder.getContext().getUserId();
+        return studentCatalogRepository.listEnrolledSubjects(userId);
     }
 
     @Override
-    public List<SyllabusItemDTO> getSyllabiBySubject(Integer subjectId) {
-        return studentCatalogRepository.listSyllabiBySubject(subjectId);
-    }
-
-    @Override
-    public List<TeacherItemDTO> getTeachers(Integer modalityId) {
-        return studentCatalogRepository.listTeachers(modalityId);
-    }
-
-    @Override
-    public List<ModalityItemDTO> getModalities() {
-        return studentCatalogRepository.listModalities();
+    public StudentSubjectTeacherDTO getTeacherForSubject(Integer subjectId) {
+        Integer userId = UserContextHolder.getContext().getUserId();
+        return studentCatalogRepository.getTeacherForStudentSubject(userId, subjectId);
     }
 
     @Override
@@ -43,23 +35,18 @@ public class StudentCatalogServiceImpl implements StudentCatalogService {
     }
 
     @Override
-    public List<TimeSlotItemDTO> getTimeSlots() {
-        return studentCatalogRepository.listTimeSlots();
-    }
-
-    @Override
-    public List<AvailableTimeSlotDTO> getAvailableTimeSlots(Integer teacherId, Short dayOfWeek, Integer periodId) {
-        return studentCatalogRepository.listAvailableTimeSlots(teacherId, dayOfWeek, periodId);
-    }
-
-    @Override
-    public boolean isTimeSlotAvailable(Integer teacherId, Short dayOfWeek, Integer periodId, Integer timeSlotId) {
-        return studentCatalogRepository.isTimeSlotAvailable(teacherId, dayOfWeek, periodId, timeSlotId);
+    public ActivePeriodDTO getActivePeriod() {
+        return studentCatalogRepository.getActivePeriod();
     }
 
     @Override
     public List<ClassmateItemDTO> getClassmatesBySubject(Integer subjectId) {
         Integer userId = UserContextHolder.getContext().getUserId();
         return studentCatalogRepository.listClassmatesBySubject(subjectId, userId);
+    }
+
+    @Override
+    public void addResourceUrl(Integer requestId, String fileUrl) {
+        studentCatalogRepository.addResourceUrl(requestId, fileUrl);
     }
 }

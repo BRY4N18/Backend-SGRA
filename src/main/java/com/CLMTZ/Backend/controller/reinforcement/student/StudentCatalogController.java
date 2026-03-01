@@ -18,49 +18,46 @@ public class StudentCatalogController {
         this.studentCatalogService = studentCatalogService;
     }
 
+    /**
+     * Obtiene las asignaturas en las que el estudiante autenticado está matriculado
+     * en el periodo activo.
+     */
     @GetMapping("/subjects")
     public ResponseEntity<?> getSubjects() {
         try {
-            List<SubjectItemDTO> subjects = studentCatalogService.getSubjects();
+            List<SubjectItemDTO> subjects = studentCatalogService.getEnrolledSubjects();
             return ResponseEntity.ok(subjects);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error retrieving subjects: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("message", "Error al obtener asignaturas: " + e.getMessage()));
         }
     }
 
-    @GetMapping("/subjects/{subjectId}/syllabi")
-    public ResponseEntity<?> getSyllabiBySubject(@PathVariable("subjectId") Integer subjectId) {
+    /**
+     * Obtiene el docente asignado al paralelo del estudiante para una asignatura.
+     * Retorna el docente o un mensaje indicando que no hay docente asignado.
+     */
+    @GetMapping("/subjects/{subjectId}/teacher")
+    public ResponseEntity<?> getTeacherBySubject(@PathVariable("subjectId") Integer subjectId) {
         try {
             if (subjectId == null || subjectId <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid subjectId parameter"));
+                return ResponseEntity.badRequest().body(Map.of("message", "ID de asignatura inválido"));
             }
-            List<SyllabusItemDTO> syllabi = studentCatalogService.getSyllabiBySubject(subjectId);
-            return ResponseEntity.ok(syllabi);
+            StudentSubjectTeacherDTO teacher = studentCatalogService.getTeacherForSubject(subjectId);
+            if (teacher == null) {
+                return ResponseEntity.ok(Map.of(
+                        "found", false,
+                        "message", "No se encontró un docente asignado para esta asignatura en tu paralelo"
+                ));
+            }
+            return ResponseEntity.ok(teacher);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error retrieving syllabi: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("message", "Error al obtener docente: " + e.getMessage()));
         }
     }
 
-    @GetMapping("/teachers")
-    public ResponseEntity<?> getTeachers(@RequestParam(value = "modalityId", required = false) Integer modalityId) {
-        try {
-            List<TeacherItemDTO> teachers = studentCatalogService.getTeachers(modalityId);
-            return ResponseEntity.ok(teachers);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error retrieving teachers: " + e.getMessage()));
-        }
-    }
-
-    @GetMapping("/modalities")
-    public ResponseEntity<?> getModalities() {
-        try {
-            List<ModalityItemDTO> modalities = studentCatalogService.getModalities();
-            return ResponseEntity.ok(modalities);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error retrieving modalities: " + e.getMessage()));
-        }
-    }
-
+    /**
+     * Lista los tipos de sesión (Individual, Grupal).
+     */
     @GetMapping("/sessionTypes")
     public ResponseEntity<?> getSessionTypes() {
         try {
@@ -68,71 +65,44 @@ public class StudentCatalogController {
             return ResponseEntity.ok(sessionTypes);
         } catch (Exception e) {
             return ResponseEntity.status(500)
-                    .body(Map.of("message", "Error retrieving session types: " + e.getMessage()));
-        }
-    }
-
-    @GetMapping("/timeSlots")
-    public ResponseEntity<?> getTimeSlots() {
-        try {
-            List<TimeSlotItemDTO> timeSlots = studentCatalogService.getTimeSlots();
-            return ResponseEntity.ok(timeSlots);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error retrieving time slots: " + e.getMessage()));
+                    .body(Map.of("message", "Error al obtener tipos de sesión: " + e.getMessage()));
         }
     }
 
     /**
-     * Endpoint para obtener franjas horarias disponibles de un docente.
-     * Filtra por disponibilidad registrada y excluye franjas ocupadas por solicitudes activas.
-     *
-     * @param teacherId ID del docente
-     * @param dayOfWeek Día de la semana (1=Lunes, 7=Domingo)
-     * @param periodId ID del periodo académico
-     * @return Lista de franjas disponibles [{timeSlotId, label, timeSlotJson}]
+     * Obtiene el periodo académico activo.
      */
-    @GetMapping("/timeSlots/available")
-    public ResponseEntity<?> getAvailableTimeSlots(
-            @RequestParam("teacherId") Integer teacherId,
-            @RequestParam("dayOfWeek") Short dayOfWeek,
-            @RequestParam("periodId") Integer periodId) {
+    @GetMapping("/active-period")
+    public ResponseEntity<?> getActivePeriod() {
         try {
-            if (teacherId == null || teacherId <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid teacherId parameter"));
+            ActivePeriodDTO period = studentCatalogService.getActivePeriod();
+            if (period == null) {
+                return ResponseEntity.ok(Map.of(
+                        "found", false,
+                        "message", "No hay un periodo académico activo actualmente"
+                ));
             }
-            if (dayOfWeek == null || dayOfWeek < 1 || dayOfWeek > 7) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid dayOfWeek parameter (must be 1-7)"));
-            }
-            if (periodId == null || periodId <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid periodId parameter"));
-            }
-
-            List<AvailableTimeSlotDTO> availableSlots = studentCatalogService.getAvailableTimeSlots(teacherId, dayOfWeek, periodId);
-            return ResponseEntity.ok(availableSlots);
-
+            return ResponseEntity.ok(period);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Error retrieving available time slots: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("message", "Error al obtener periodo activo: " + e.getMessage()));
         }
     }
 
     /**
-     * Endpoint para obtener compañeros matriculados en la misma asignatura.
-     * Excluye al estudiante actual (autenticado).
-     *
-     * @param subjectId ID de la asignatura
-     * @return Lista de compañeros [{studentId, fullName, email}]
+     * Obtiene compañeros matriculados en la misma asignatura.
+     * Excluye al estudiante autenticado.
      */
     @GetMapping("/subjects/{subjectId}/classmates")
     public ResponseEntity<?> getClassmatesBySubject(@PathVariable("subjectId") Integer subjectId) {
         try {
             if (subjectId == null || subjectId <= 0) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Invalid subjectId parameter"));
+                return ResponseEntity.badRequest().body(Map.of("message", "ID de asignatura inválido"));
             }
             List<ClassmateItemDTO> classmates = studentCatalogService.getClassmatesBySubject(subjectId);
             return ResponseEntity.ok(classmates);
         } catch (Exception e) {
             return ResponseEntity.status(500)
-                    .body(Map.of("message", "Error retrieving classmates: " + e.getMessage()));
+                    .body(Map.of("message", "Error al obtener compañeros: " + e.getMessage()));
         }
     }
 }
