@@ -15,21 +15,18 @@ public class TeachingDTO {
     private Boolean state;
     private Integer userId;
     private Integer modalityId;
-    // Datos Personales
+    // Datos Personales (usados en API GET)
     private String cedula;
     private String nombres;
     private String apellidos;
     private String correo;
     private String telefono;
-    private String direccion;
-    private String genero; // "M" o "F"
 
-    // Datos Académicos (Texto del Excel)
-    private String carreraTexto;   // Necesario para buscar la materia
-    private String modalidadTexto;
-    private String periodoTexto;
-    
-    // CAMPOS NUEVOS ESPECÍFICOS DE DOCENTE
-    private String asignaturaTexto; // Ej: "Programación Orientada a Objetos"
-    private String paraleloTexto;   // Ej: "A"
+    // Datos del Excel Docente.xls
+    private String coordinacionTexto; // Col 0: COORDINACIÓN (facultad/área)
+    private String carreraTexto;      // Col 1: CARRERA
+    private String nivelTexto;        // Col 2: NIVEL (ej. "1ER NIVEL")
+    private String asignaturaTexto;   // Col 3: MATERIA
+    private String paraleloTexto;     // Col 4: PARALELO (ej. "B")
+    private String nombreCompleto;    // Col 5: PROFESOR (apellidos + nombres combinado)
 }

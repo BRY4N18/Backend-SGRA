@@ -142,14 +142,15 @@ public class ExcelAIValidationService {
      */
     protected List<String> getRequiredFieldsForType(String loadType) {
         return switch (loadType) {
-            case "students" -> List.of("cedula", "nombres", "apellidos", "correo", "carreraTexto", "modalidadTexto", "periodoTexto");
-            case "teachers" -> List.of("cedula", "nombres", "apellidos", "correo");
+            // Estudiantes.xls: carrera/modalidad vienen del endpoint, periodo del activo en BD
+            case "students" -> List.of("cedula", "nombres", "apellidos", "correo", "carreraTexto", "modalidadTexto");
+            // Docente.xls: nombre del profesor, carrera, asignatura, paralelo (sin cédula ni periodo)
+            case "teachers" -> List.of("nombreCompleto", "carreraTexto", "asignaturaTexto", "paraleloTexto");
             case "class_schedules" -> List.of("cedulaDocente", "nombreAsignatura", "nombreParalelo", "nombrePeriodo", "diaSemana", "horaInicio", "horaFin");
             case "careers" -> List.of("nombre", "codigo");
             case "subjects" -> List.of("nombre", "codigo");
-            case "periods" -> List.of("nombre", "fechaInicio", "fechaFin");
-            case "registrations" -> List.of("cedulaEstudiante", "nombreAsignatura", "nombrePeriodo");
-            case "syllabi" -> List.of("nombreAsignatura", "tema", "orden");
+            // Matricula.xlsx: periodo se obtiene del activo en BD, no viene del Excel
+            case "registrations" -> List.of("cedulaEstudiante", "nombreAsignatura");
             default -> List.of();
         };
     }
@@ -167,7 +168,7 @@ public class ExcelAIValidationService {
             case "students" -> List.of(
                     "La cédula debe tener exactamente 10 dígitos numéricos",
                     "El correo debe ser un email válido",
-                    "El género debe ser 'M' o 'F'",
+                    "El género debe ser 'MUJER' o 'HOMBRE' (viene del archivo Matricula.xlsx)",
                     "No pueden existir dos estudiantes con la misma cédula en el mismo archivo"
             );
             case "class_schedules" -> List.of(

@@ -3,9 +3,7 @@ package com.CLMTZ.Backend.service.academic;
 import java.util.List;
 
 import com.CLMTZ.Backend.dto.academic.CoordinationDTO;
-import com.CLMTZ.Backend.dto.academic.PeriodDTO;
 import com.CLMTZ.Backend.dto.academic.StudentLoadDTO;
-import com.CLMTZ.Backend.dto.academic.SyllabiLoadDTO;
 import com.CLMTZ.Backend.dto.academic.TeachingDTO;
 
 public interface ICoordinationService {
@@ -16,7 +14,4 @@ public interface ICoordinationService {
     void deleteById(Integer id);
     List<String> uploadStudents(List<StudentLoadDTO> dtos);
     List<String> uploadTeachers(List<TeachingDTO> dtos);
-    List<String> Period(List<PeriodDTO> dtos);
-    List<String> uploadPeriods(List<PeriodDTO> dtos);
-    List<String> uploadSyllabi(List<SyllabiLoadDTO> dtos);
 }

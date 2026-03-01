@@ -1,6 +1,8 @@
 package com.CLMTZ.Backend.service.academic.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class EnrollmentDetailServiceImpl implements IEnrollmentDetailService {
     private final IRegistrationsRepository registrationsRepository;
     private final ISubjectRepository subjectRepository;
     private final IParallelRepository parallelRepository;
+    private final IDataLoadRepository dataLoadRepository;
 
     @Override
     public List<EnrollmentDetailDTO> findAll() {
@@ -75,20 +78,65 @@ public class EnrollmentDetailServiceImpl implements IEnrollmentDetailService {
 
     @Override
     public List<String> uploadEnrollmentDetails(List<EnrollmentDetailLoadDTO> registrationDTOs) {
-        List<String> report = new java.util.ArrayList<>();
+        List<String> report = new ArrayList<>();
+
+        if (registrationDTOs == null || registrationDTOs.isEmpty()) {
+            report.add("ADVERTENCIA: No se encontraron registros de matrícula en el archivo. Verifique el formato del Excel.");
+            return report;
+        }
+
+        // Periodo activo (gestionado por el admin, no viene del Excel)
+        Integer idPeriodo = dataLoadRepository.obtenerIdPeriodoActivo();
+        if (idPeriodo == null) {
+            report.add("ERROR GENERAL: No hay un periodo activo configurado. Contacte al administrador.");
+            return report;
+        }
+
         for (EnrollmentDetailLoadDTO dto : registrationDTOs) {
+            String ref = "Estudiante '" + dto.getCedulaEstudiante() + "' - Asig. '" + dto.getNombreAsignatura() + "'";
             try {
-                // Aquí deberías buscar por cédula, periodo, asignatura y paralelo para actualizar si existe
-                // Por simplicidad, solo se crea uno nuevo (ajusta según tu modelo de negocio)
+                // 1. Verificar que el estudiante tiene matrícula en el periodo activo
+                //    (Requiere que el paso 1 - upload-students - ya se haya ejecutado)
+                Integer idMatricula = dataLoadRepository.obtenerIdMatricula(dto.getCedulaEstudiante(), idPeriodo);
+                if (idMatricula == null) {
+                    report.add(ref + ": ERROR (Estudiante sin matrícula en el periodo activo. Cargue primero Estudiantes)");
+                    continue;
+                }
+
+                // 2. Obtener ID de carrera a partir del texto del encabezado del Excel
+                Map<String, Object> ids = dataLoadRepository.obtenerIdsPorCarrera(dto.getCarreraTexto());
+                if (ids == null || ids.get("id_carrera_encontrado") == null) {
+                    report.add(ref + ": ERROR (Carrera no encontrada en BD: '" + dto.getCarreraTexto() + "')");
+                    continue;
+                }
+                Integer idCarrera = ((Number) ids.get("id_carrera_encontrado")).intValue();
+
+                // 3. Obtener ID de asignatura por nombre y carrera
+                Integer idAsignatura = dataLoadRepository.obtenerIdAsignatura(dto.getNombreAsignatura(), idCarrera);
+                if (idAsignatura == null) {
+                    report.add(ref + ": ERROR (Asignatura '" + dto.getNombreAsignatura() + "' no encontrada en esa carrera)");
+                    continue;
+                }
+
+                // 4. Crear el detalle de matrícula con las relaciones correctas
+                //    paralelo: no viene en Matricula.xlsx → null
                 EnrollmentDetail detail = new EnrollmentDetail();
+                detail.setRegistrationId(registrationsRepository.getReferenceById(idMatricula));
+                detail.setSubjectId(subjectRepository.getReferenceById(idAsignatura));
                 detail.setActive(true);
-                // Faltan asignaciones de relaciones (registrationId, subjectId, parallelId) por falta de info
                 repository.save(detail);
-                report.add("Detalle de matrícula para estudiante '" + dto.getCedulaEstudiante() + "' creado");
+
+                report.add(ref + ": OK");
+
             } catch (Exception e) {
-                report.add("Detalle de matrícula para estudiante '" + dto.getCedulaEstudiante() + "': ERROR (" + e.getMessage() + ")");
+                report.add(ref + ": ERROR (" + e.getMessage() + ")");
             }
         }
+
+        long exitosos = report.stream().filter(r -> r.endsWith(": OK")).count();
+        long errores = report.stream().filter(r -> r.contains(": ERROR")).count();
+        report.add(0, "RESUMEN: " + registrationDTOs.size() + " registros → " + exitosos + " exitosos, " + errores + " con errores.");
+
         return report;
     }
 }

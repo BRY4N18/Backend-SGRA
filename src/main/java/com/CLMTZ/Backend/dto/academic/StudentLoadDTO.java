@@ -9,12 +9,9 @@ public class StudentLoadDTO {
     private String apellidos;
     private String correo;
     private String telefono;
-    private String direccion;
-    private String genero; // "M" o "F"
+    private String genero; // "MUJER" o "HOMBRE" -> se convierte a ID en el servicio
 
-    // Datos académicos (Texto del Excel)
+    // Datos académicos (Texto del Excel o parámetro del endpoint)
     private String carreraTexto;
     private String modalidadTexto;
-    private String periodoTexto;
-
 }
