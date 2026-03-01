@@ -88,7 +88,7 @@ public class RoleManagementServiceImpl implements IRoleManagementService {
                         Integer roleAppId = entry.getKey();
                         List<FlatRoleMappingDTO> mapp = entry.getValue();
 
-                        String roleAppName = mapp.get(0).getPgrol();
+                        String roleAppName = mapp.get(0).getProl();
 
                         List<RoleListManagementConectionResponseDTO> serverRoles = mapp.stream()
                             .map(m -> new RoleListManagementConectionResponseDTO(
