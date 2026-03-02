@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -36,6 +38,9 @@ public class ScheduledReinforcement {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idfranjahoraria", foreignKey = @ForeignKey(name = "fk_refuerzoprogramado_franjahoraria"))
     private TimeSlot timeSlotId;
+
+    @Column(name = "fechaprogramadarefuerzo", nullable = false, columnDefinition = "date")
+    private LocalDate scheduledDateReinforcement;
 
     @Column(name = "duracionestimado", nullable = false, columnDefinition = "time")
     private LocalTime estimatedTime;
