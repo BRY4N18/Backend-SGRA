@@ -8,10 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Request que se envía al servicio de validación IA.
- * Contiene las filas parseadas del Excel y las reglas del SP destino.
- */
 @Data
 @Builder
 @NoArgsConstructor

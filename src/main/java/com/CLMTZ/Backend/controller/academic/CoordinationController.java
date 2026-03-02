@@ -1,6 +1,7 @@
 package com.CLMTZ.Backend.controller.academic;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,14 @@ import com.CLMTZ.Backend.dto.academic.EnrollmentDetailLoadDTO;
 import com.CLMTZ.Backend.dto.academic.StudentLoadDTO;
 import com.CLMTZ.Backend.dto.academic.SubjectLoadDTO;
 import com.CLMTZ.Backend.dto.academic.TeachingDTO;
+import com.CLMTZ.Backend.dto.ai.AIValidationRequest;
+import com.CLMTZ.Backend.dto.ai.AIValidationResult;
 import com.CLMTZ.Backend.service.academic.ICareerService;
 import com.CLMTZ.Backend.service.academic.IClassScheduleService;
 import com.CLMTZ.Backend.service.academic.ICoordinationService;
 import com.CLMTZ.Backend.service.academic.IEnrollmentDetailService;
 import com.CLMTZ.Backend.service.academic.ISubjectService;
+import com.CLMTZ.Backend.service.ai.ExcelAIValidationService;
 import com.CLMTZ.Backend.util.ExcelHelper;
 
 import lombok.NonNull;
@@ -30,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class CoordinationController {
 
     private final ICoordinationService service;
+    private final ExcelAIValidationService aiValidationService;
 
     @GetMapping
     public ResponseEntity<List<CoordinationDTO>> findAll() { return ResponseEntity.ok(service.findAll()); }
@@ -189,6 +194,71 @@ public class CoordinationController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(List.of("Error al procesar el archivo de horarios: " + e.getMessage()));
+        }
+    }
+
+    // =====================================================================
+    // ENDPOINT DE VALIDACIÓN IA PARA DATOS DE EXCEL
+    // =====================================================================
+
+    /**
+     * Valida un archivo Excel usando IA antes de subirlo oficialmente.
+     * Analiza campos vacíos, duplicados, formatos incorrectos, idioma, etc.
+     *
+     * @param file archivo Excel a validar
+     * @param loadType tipo de carga: "students", "teachers", "registrations"
+     * @return AIValidationResult con los issues encontrados y recomendación
+     */
+    @PostMapping("/validate-excel")
+    public ResponseEntity<AIValidationResult> validateExcel(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("loadType") String loadType) {
+
+        System.out.println("\n==============================");
+        System.out.println("[VALIDATE-EXCEL] Archivo: " + (file != null ? file.getOriginalFilename() : "null"));
+        System.out.println("[VALIDATE-EXCEL] Tipo de carga: " + loadType);
+        System.out.println("==============================\n");
+
+        if (!ExcelHelper.hasExcelFormat(file)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(AIValidationResult.builder()
+                            .aiValidated(false)
+                            .recommendedAction("REJECT")
+                            .summary("El archivo no es un Excel válido (.xls o .xlsx)")
+                            .build());
+        }
+
+        try {
+            // Convertir Excel a lista de mapas genéricos
+            List<Map<String, Object>> rows = ExcelHelper.excelToGenericMap(file.getInputStream(), loadType);
+
+            if (rows.isEmpty()) {
+                return ResponseEntity.ok(AIValidationResult.builder()
+                        .aiValidated(false)
+                        .recommendedAction("REJECT")
+                        .summary("El archivo está vacío o no tiene datos válidos para procesar.")
+                        .build());
+            }
+
+            // Construir request de validación
+            AIValidationRequest request = AIValidationRequest.builder()
+                    .loadType(loadType)
+                    .rows(rows)
+                    .build();
+
+            // Ejecutar validación IA (con fallback a Java)
+            AIValidationResult result = aiValidationService.validate(request);
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(AIValidationResult.builder()
+                            .aiValidated(false)
+                            .recommendedAction("REJECT")
+                            .summary("Error al procesar el archivo: " + e.getMessage())
+                            .build());
         }
     }
 }

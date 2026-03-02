@@ -8,9 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Resultado completo de la validación IA/fallback sobre los datos del Excel.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -32,8 +29,6 @@ public class AIValidationResult {
 
     /** Tiempo en milisegundos que tomó la validación */
     private long validationTimeMs;
-
-    // ── Métodos de conveniencia ──
 
     /** Retorna true si hay al menos un issue con severidad ERROR */
     public boolean hasCriticalErrors() {
