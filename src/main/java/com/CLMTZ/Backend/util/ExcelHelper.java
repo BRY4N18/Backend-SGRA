@@ -205,7 +205,7 @@ public class ExcelHelper {
 
             // Datos de estudiantes: fila 8 (índice 8) en adelante (fila 7 = cabeceras)
             for (int i = 8; i < sheet.getPhysicalNumberOfRows(); i++) {
-                Row row = sheet.getRow(i);
+                Row row = sheet.getRow(i);  
                 if (row == null || isRowEmpty(row)) continue;
 
                 String identificador = getCellValue(row, 3).trim(); // Col 3: IDENTIFICACIÓN
