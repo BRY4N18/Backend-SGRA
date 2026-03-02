@@ -402,19 +402,30 @@ public class ExcelHelper {
                 // RECORRER CADA MATERIA EN LA QUE PODRÍA ESTAR MATRICULADO
                 for (Map.Entry<Integer, String> entry : asignaturasPorColumna.entrySet()) {
                     String estado = getCellValue(row, entry.getKey()).trim().toUpperCase();
-                    
-                    // Si la celda está vacía, tiene un 0 o un guion, saltamos (no toma la materia)
-                    if (estado.isEmpty() || estado.equals("0") || estado.equals("-")) continue;
 
-                    // 🔥 LA MAGIA DEL PARALELO INDIVIDUAL (Adiós problemas de arrastre) 🔥
+                    // 1. FILTRO ANTI-BASURA Y ANTI-HISTORIAL
+                    // Si está vacía, o tiene Aprobada (A), Reprobada (R), Pendiente (P) o un guion (-), ¡LA IGNORAMOS!
+                    if (estado.isEmpty() || estado.equals("0") || estado.equals("-") ||
+                        estado.equals("A") || estado.equals("R") || estado.equals("P")) {
+                        continue;
+                    }
+
+                    // 2. ASIGNACIÓN DEL PARALELO REAL
                     String paraleloFinalMateria;
-                    
+
                     if (estado.equals("M") || estado.equals("X")) {
-                        // Si pusieron la típica "M", usa el paralelo base de la columna 8
-                        paraleloFinalMateria = paraleloBase; 
+                        // Si pusieron la típica "M", usa el paralelo general de la columna 8
+                        paraleloFinalMateria = paraleloBase;
+                    } else if (estado.startsWith("M") && estado.length() == 2) {
+                        // NUEVO TRUCO PARA ARRASTRES: Si ponen "MB" o "MA"
+                        // Extraemos la segunda letra para saber el paralelo exacto
+                        paraleloFinalMateria = estado.substring(1, 2);
+                    } else if (estado.equals("B") || estado.equals("C")) {
+                        // Si pusieron la letra B o C suelta, la aceptamos
+                        paraleloFinalMateria = estado;
                     } else {
-                        // Si escribieron "A", "B", o "C" directamente en la celda de la materia, usamos ESE paralelo
-                        paraleloFinalMateria = estado.substring(0, 1); 
+                        // Si tiene cualquier otra letra rara, la saltamos por seguridad
+                        continue;
                     }
 
                     // Obtenemos el semestre EXACTO de esa materia (no el del estudiante)
@@ -425,7 +436,7 @@ public class ExcelHelper {
                     detalle.setSexo(sexo);
                     detalle.setAsignatura(entry.getValue());
                     detalle.setSemestre(semestreExacto);
-                    detalle.setParalelo(paraleloFinalMateria); 
+                    detalle.setParalelo(paraleloFinalMateria);
                     detalles.add(detalle);
                 }
             }
