@@ -2,7 +2,6 @@ package com.CLMTZ.Backend.model.academic;
 
 import java.util.List;
 
-import com.CLMTZ.Backend.model.reinforcement.ReinforcementRequest;
 import com.CLMTZ.Backend.model.reinforcement.ScheduledReinforcement;
 
 import jakarta.persistence.*;

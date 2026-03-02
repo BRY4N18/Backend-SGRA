@@ -3,12 +3,10 @@ package com.CLMTZ.Backend.model.reinforcement;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.CLMTZ.Backend.model.academic.Modality;
 import com.CLMTZ.Backend.model.academic.Period;
 import com.CLMTZ.Backend.model.academic.Students;
 import com.CLMTZ.Backend.model.academic.Subject;
 import com.CLMTZ.Backend.model.academic.Teaching;
-import com.CLMTZ.Backend.model.academic.TimeSlot;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
