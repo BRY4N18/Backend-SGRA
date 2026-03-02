@@ -5,10 +5,6 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
-/**
- * Propiedades de configuración para la API de Groq Cloud.
- * Se mapean automáticamente desde application.properties con prefijo "groq".
- */
 @Data
 @Component
 @ConfigurationProperties(prefix = "groq")

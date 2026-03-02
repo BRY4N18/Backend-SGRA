@@ -1,42 +1,86 @@
 package com.CLMTZ.Backend.service.ai;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
 import com.CLMTZ.Backend.config.GroqProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Cliente HTTP para la API de Groq Cloud.
- * Envía prompts y recibe respuestas de la IA.
- *
- * TODO: Implementar llamada real a la API de Groq cuando se active la funcionalidad.
- * Por ahora solo define la estructura y contrato del servicio.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GroqAIService {
 
     private final GroqProperties groqProperties;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     /**
      * Envía un prompt al modelo Groq y retorna la respuesta como String.
-     *
-     * @param systemPrompt instrucciones del sistema (rol del modelo)
-     * @param userPrompt   datos del usuario a analizar
-     * @return respuesta del modelo como texto plano (se espera JSON)
-     * @throws GroqAIException si la API falla, timeout, o respuesta inválida
      */
     public String chat(String systemPrompt, String userPrompt) {
-        // TODO: Implementar llamada HTTP real a Groq
-        // 1. Construir payload JSON con model, messages[], max_tokens, temperature
-        // 2. POST a groqProperties.getApi().getUrl()
-        // 3. Header: Authorization: Bearer {groqProperties.getApi().getKey()}
-        // 4. Parsear response.choices[0].message.content
-        // 5. Manejar timeouts (groqProperties.getTimeoutSeconds()) y reintentos
-        log.warn("[GroqAIService] chat() llamado pero AÚN NO IMPLEMENTADO. Retornando null para activar fallback.");
-        return null;
+        if (!isAvailable()) {
+            log.warn("[GroqAIService] API key no configurada, saltando validación IA");
+            return null;
+        }
+
+        try {
+            Map<String, Object> payload = buildRequestPayload(systemPrompt, userPrompt);
+            String payloadJson = objectMapper.writeValueAsString(payload);
+
+            log.info("[GroqAIService] Enviando request a Groq API...");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(groqProperties.getApi().getKey());
+
+            HttpEntity<String> entity = new HttpEntity<>(payloadJson, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    groqProperties.getApi().getUrl(),
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            String responseBody = response.getBody();
+
+            // Parsear respuesta y extraer choices[0].message.content
+            JsonNode responseNode = objectMapper.readTree(responseBody);
+            JsonNode choicesNode = responseNode.get("choices");
+            if (choicesNode != null && choicesNode.isArray() && !choicesNode.isEmpty()) {
+                JsonNode messageNode = choicesNode.get(0).get("message");
+                if (messageNode != null) {
+                    String content = messageNode.get("content").asText();
+                    log.info("[GroqAIService] Respuesta recibida exitosamente");
+                    return content;
+                }
+            }
+
+            log.error("[GroqAIService] Respuesta de Groq sin contenido válido: {}", responseBody);
+            return null;
+
+        } catch (HttpClientErrorException e) {
+            log.error("[GroqAIService] Error HTTP de Groq: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new GroqAIException("Error de API Groq: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("[GroqAIService] Error al comunicarse con Groq: {}", e.getMessage());
+            throw new GroqAIException("Error de comunicación con Groq: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -51,29 +95,19 @@ public class GroqAIService {
 
     /**
      * Construye el payload JSON para la API de Groq.
-     *
-     * @param systemPrompt instrucciones del sistema
-     * @param userPrompt   mensaje del usuario
-     * @return mapa con la estructura del request body
      */
     protected Map<String, Object> buildRequestPayload(String systemPrompt, String userPrompt) {
-        // TODO: Implementar construcción del payload
-        // Estructura esperada:
-        // {
-        //   "model": groqProperties.getModel(),
-        //   "messages": [
-        //     {"role": "system", "content": systemPrompt},
-        //     {"role": "user", "content": userPrompt}
-        //   ],
-        //   "max_tokens": groqProperties.getMaxTokens(),
-        //   "temperature": groqProperties.getTemperature(),
-        //   "response_format": {"type": "json_object"}
-        // }
-        return Map.of();
+        return Map.of(
+                "model", groqProperties.getModel(),
+                "messages", List.of(
+                        Map.of("role", "system", "content", systemPrompt),
+                        Map.of("role", "user", "content", userPrompt)
+                ),
+                "max_tokens", groqProperties.getMaxTokens(),
+                "temperature", groqProperties.getTemperature(),
+                "response_format", Map.of("type", "json_object")
+        );
     }
-
-    // ── Excepción personalizada ──
-
     /**
      * Excepción lanzada cuando la API de Groq falla.
      */

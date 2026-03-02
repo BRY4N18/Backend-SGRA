@@ -5,18 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Representa un problema individual detectado por la validación IA o el fallback Java.
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AIValidationIssue {
 
-    /**
-     * Severidad del problema detectado.
-     */
     public enum Severity {
         /** Error crítico: la fila no puede procesarse */
         ERROR,
