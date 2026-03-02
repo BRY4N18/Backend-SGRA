@@ -9,4 +9,6 @@ public interface IWorkAreaService {
     WorkAreaDTO save(WorkAreaDTO dto);
     WorkAreaDTO update(Integer id, WorkAreaDTO dto);
     void deleteById(Integer id);
+
+    List<WorkAreaDTO> listAreasNames(Integer academicid);
 }
