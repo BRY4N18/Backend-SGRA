@@ -1,12 +1,8 @@
 package com.CLMTZ.Backend.service.ai;
 
-import java.util.List;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
-
 import com.CLMTZ.Backend.config.GroqProperties;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

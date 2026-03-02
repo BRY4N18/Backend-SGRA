@@ -40,8 +40,8 @@ public class WorkAreaManager {
     @JoinColumn(name = "idareaacademica", foreignKey = @ForeignKey(name = "fk_gestorareatrabajo_areaacademica"))
     private AcademicArea areaAcademicId;
 
-    @Column(name = "planta", nullable = false, columnDefinition = "smallint")
-    private Short plant;
+    @Column(name = "planta", length = 50, nullable = false)
+    private String plant;
 
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")
     private Boolean state = true;

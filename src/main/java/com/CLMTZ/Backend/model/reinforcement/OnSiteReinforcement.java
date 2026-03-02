@@ -20,7 +20,11 @@ public class OnSiteReinforcement {
     private Integer onSiteReinforcementId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idareatrabajo", nullable = false, foreignKey = @ForeignKey(name = "fk_presencial_areatrabajo"))
+    @JoinColumn(name = "idtipoareatrabajo", nullable = true, foreignKey = @ForeignKey(name = "fk_presencial_tipoareatrabajo"))
+    private WorkAreaTypes workAreaTypeId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idareatrabajo", nullable = true, foreignKey = @ForeignKey(name = "fk_presencial_areatrabajo"))
     private WorkArea workAreaId;
 
     @ManyToOne(fetch = FetchType.LAZY)

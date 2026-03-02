@@ -29,4 +29,7 @@ public class WorkAreaTypes {
 
     @OneToMany(mappedBy = "workAreaTypeId", fetch = FetchType.LAZY)
     private List<WorkArea> workAreas;
+
+    @OneToMany(mappedBy = "workAreaTypeId", fetch = FetchType.LAZY)
+    private List<OnSiteReinforcement> onSiteReinforcements;
 }

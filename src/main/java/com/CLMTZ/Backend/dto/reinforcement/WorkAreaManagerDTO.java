@@ -11,6 +11,6 @@ public class WorkAreaManagerDTO {
     private Integer workAreaManagerId;
     private Integer userId;
     private Integer areaAcademicId;
-    private Short plant;
+    private String plant;
     private Boolean state;
 }

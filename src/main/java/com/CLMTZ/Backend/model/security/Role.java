@@ -20,7 +20,7 @@ public class Role {
     @EqualsAndHashCode.Include
     private Integer roleId;
 
-    @Column(name = "rol", length = 15, nullable = false)
+    @Column(name = "rol", length = 27, nullable = false)
     private String role;
 
     @Column(name = "estado", nullable = false, columnDefinition = "boolean default true")

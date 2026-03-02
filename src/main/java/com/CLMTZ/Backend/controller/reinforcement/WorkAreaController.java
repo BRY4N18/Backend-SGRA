@@ -13,20 +13,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WorkAreaController {
 
-    private final IWorkAreaService service;
+    private final IWorkAreaService workAreaSer;
 
     @GetMapping
-    public ResponseEntity<List<WorkAreaDTO>> findAll() { return ResponseEntity.ok(service.findAll()); }
+    public ResponseEntity<List<WorkAreaDTO>> findAll() { return ResponseEntity.ok(workAreaSer.findAll()); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorkAreaDTO> findById(@PathVariable("id") Integer id) { return ResponseEntity.ok(service.findById(id)); }
+    public ResponseEntity<WorkAreaDTO> findById(@PathVariable("id") Integer id) { return ResponseEntity.ok(workAreaSer.findById(id)); }
 
     @PostMapping
-    public ResponseEntity<WorkAreaDTO> save(@RequestBody WorkAreaDTO dto) { return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED); }
+    public ResponseEntity<WorkAreaDTO> save(@RequestBody WorkAreaDTO dto) { return new ResponseEntity<>(workAreaSer.save(dto), HttpStatus.CREATED); }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WorkAreaDTO> update(@PathVariable("id") Integer id, @RequestBody WorkAreaDTO dto) { return ResponseEntity.ok(service.update(id, dto)); }
+    public ResponseEntity<WorkAreaDTO> update(@PathVariable("id") Integer id, @RequestBody WorkAreaDTO dto) { return ResponseEntity.ok(workAreaSer.update(id, dto)); }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) { service.deleteById(id); return ResponseEntity.noContent().build(); }
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) { workAreaSer.deleteById(id); return ResponseEntity.noContent().build(); }
+
+    @GetMapping("/list-workAreas")
+    public ResponseEntity<List<WorkAreaDTO>> listWorkAreas(@RequestParam Integer academicTypeId){
+        List<WorkAreaDTO> requestListAreas = workAreaSer.listAreasNames(academicTypeId);
+        return ResponseEntity.ok(requestListAreas);
+    }
 }
