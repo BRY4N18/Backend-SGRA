@@ -1,14 +1,10 @@
 package com.CLMTZ.Backend.controller.security;
 
-import java.time.LocalDate;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.CLMTZ.Backend.dto.security.Request.EmailSettingsRequestDTO;
-import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
-import com.CLMTZ.Backend.dto.security.Response.UserListManagementResponseDTO;
+import com.CLMTZ.Backend.dto.security.EmailSettingsDTO;
 import com.CLMTZ.Backend.service.security.IEmailSettingsService;
 import lombok.RequiredArgsConstructor;
 
@@ -17,19 +13,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailSettingsController {
 
-    private final IEmailSettingsService emailSettingsSer;
+    private final IEmailSettingsService service;
 
-    @GetMapping("/list-emails")
-    public ResponseEntity<List<EmailSettingsRequestDTO>> listEmails(
-            @RequestParam(value = "filter", required = false) String filter,
-            @RequestParam(value = "state", required = false) Boolean state) {
-        List<EmailSettingsRequestDTO> requestList = emailSettingsSer.listEmailSettings(filter,state);
-        return ResponseEntity.ok(requestList);
+    @GetMapping
+    public ResponseEntity<List<EmailSettingsDTO>> findAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    @PostMapping("/create-email")
-    public ResponseEntity<SpResponseDTO> createEmail(@RequestBody EmailSettingsRequestDTO emailDTO){
-        SpResponseDTO dto = emailSettingsSer.createEmail(emailDTO);
-        return ResponseEntity.ok(dto);
+    @GetMapping("/{id}")
+    public ResponseEntity<EmailSettingsDTO> findById(@PathVariable("id") Integer id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<EmailSettingsDTO> save(@RequestBody EmailSettingsDTO dto) {
+        return new ResponseEntity<>(service.save(dto), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EmailSettingsDTO> update(@PathVariable("id") Integer id, @RequestBody EmailSettingsDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+        service.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

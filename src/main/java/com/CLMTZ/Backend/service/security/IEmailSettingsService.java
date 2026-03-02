@@ -1,11 +1,12 @@
 package com.CLMTZ.Backend.service.security;
 
 import java.util.List;
-
-import com.CLMTZ.Backend.dto.security.Request.EmailSettingsRequestDTO;
-import com.CLMTZ.Backend.dto.security.Response.SpResponseDTO;
+import com.CLMTZ.Backend.dto.security.EmailSettingsDTO;
 
 public interface IEmailSettingsService {
-    List<EmailSettingsRequestDTO> listEmailSettings(String filter, Boolean state);
-    SpResponseDTO createEmail(EmailSettingsRequestDTO emailDTO);
+    List<EmailSettingsDTO> findAll();
+    EmailSettingsDTO findById(Integer id);
+    EmailSettingsDTO save(EmailSettingsDTO dto);
+    EmailSettingsDTO update(Integer id, EmailSettingsDTO dto);
+    void deleteById(Integer id);
 }
