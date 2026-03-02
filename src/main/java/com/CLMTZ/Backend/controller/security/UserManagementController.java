@@ -48,7 +48,6 @@ public class UserManagementController {
     public ResponseEntity<SpResponseDTO> updateGUser(@RequestBody UserRolesUpdateManagementResponseDTO requestUser) {
 
         SpResponseDTO request = userManagementser.updateUserManagement(requestUser);
-        System.out.println(requestUser);
 
         return ResponseEntity.ok(request);
     }
