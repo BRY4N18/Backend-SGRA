@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,7 @@ public class TeacherRequestRepositoryImpl implements TeacherRequestRepository {
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("teacherId", teacherId);
-        params.addValue("statusId", statusId);
+        params.addValue("statusId", statusId, Types.INTEGER);
         params.addValue("size", size);
         params.addValue("offset", offset);
 
